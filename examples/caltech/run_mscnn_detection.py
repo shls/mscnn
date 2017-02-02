@@ -294,40 +294,35 @@ def write_caltech_results_file(net):
         for v_num, file_list in target_frames[set_num].items():
             current_frames += detection_to_file(target_path, v_num, file_list, detect, total_frames, current_frames)
 
-def vis_detections(im, class_name, boxes, confidence, thresh):
-    """Visual debugging of detections."""
-    import matplotlib.pyplot as plt
-    im_show = im
-    if sdha_cfg.channels == 3:
-        im = im[:, :, (2, 1, 0)]
-        im_show = im
-    elif sdha_cfg.channels == 4:
-        b,g,r,mhi = cv2.split(im)
-        im_show = cv2.merge([r,g,b])
-    else:
-        pass
-    for i in xrange(np.minimum(10, dets.shape[0])):
-        bbox = boxes[i]
-        score = confidence[i]
-        if score > thresh:
-            plt.cla()
-            plt.imshow(im_show)
-            plt.gca().add_patch(
-                plt.Rectangle((bbox[0], bbox[1]),
-                              bbox[2] - bbox[0],
-                              bbox[3] - bbox[1], fill=False,
-                              edgecolor='g', linewidth=3)
-                )
-            plt.title('{}  {:.3f}'.format(class_name, score))
-            plt.show()
+
 
 def video_prediction(net, video_name, thresh):
     vidcap = cv2.VideoCapture(video_name)
     success,im = vidcap.read()
     while success:
-        confidence, boxes = im_detect(net, im)
-        vis_detections(im, 'pedestrain', boxes, confidence, thresh)
+        confidence, bboxes = im_detect(net, im, (im.shape[0],im.shape[1]))
+        dets = np.hstack((bboxes,confidence[:, np.newaxis])).astype(np.float32)
+        keep = nms(dets, 0.3)
+        dets_nms = dets[keep, :]
+
+        inds = np.where(dets_nms[:, -1] >= thresh)[0]
+        miss = 0
+        for i in inds:
+            bbox = dets_nms[i, :4]
+            score = dets_nms[i, -1]
+            if score >= thresh:
+            	x = bbox[0]
+            	y = bbox[1]
+            	width = bbox[2]
+            	height =  bbox[3]
+            	im_bbox = im
+            	cv2.rectangle(im_bbox, (x,y), (x+width,y+height), (0,255,0),2)
+            	cv2.imshow('detections', im_bbox)
+            	cv2.waitKey(1)
+            else:
+            	miss += 1
         success,im = vidcap.read()
+    print miss
                 
 if __name__ == "__main__":
     args = parse_args()
