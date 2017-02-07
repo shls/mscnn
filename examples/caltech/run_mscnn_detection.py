@@ -66,7 +66,6 @@ def parse_args():
                         help='model to test',
                         default='/home/ls/mscnn/examples/caltech/mscnn-7s-720-pretrained/mscnn_caltech_train_2nd_iter_20000.caffemodel'\
                         , type=str)
-
     parser.add_argument('--do_bb_norm', dest='do_bb_norm',help="Whether to denormalize the box with std or means.\
     Author's pretrained model does not need this. ",
                 default=True , type=bool)
@@ -75,7 +74,10 @@ def parse_args():
     parser.add_argument('--detection', dest='dt_name',  help='model to test', default='detection_1', type=str)
     parser.add_argument('--video_file', dest='video_name',  help='video to test', default='', type=str)
     parser.add_argument('--threshold', dest='threshold', help='threshold for boxes', default=0.9, type=float)
-    
+    pareer.add_argument('--recursive', dest='recursive', help='recursively testing', default=False, type=bool)
+    pareer.add_argument('--folder', dest='root_folder', help='root folder for recursively test', default='', type=str)
+    pareer.add_argument('--filetype', dest='filetype', help='file type(video/img)', default='img',type=str)
+
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
@@ -193,106 +195,106 @@ def nms(dets, thresh):
    
     return gpu_nms(new_dets, thresh, device_id=GPU_ID)
   
-def write_caltech_results_file(net):
-    # The follwing nested fucntions are for smart sorting
-    def atoi(text):
-        return int(text) if text.isdigit() else text
+# def write_caltech_results_file(net):
+#     # The follwing nested fucntions are for smart sorting
+#     def atoi(text):
+#         return int(text) if text.isdigit() else text
 
-    def natural_keys(text):
-        return [ atoi(c) for c in re.split('(\d+)', text) ]
+#     def natural_keys(text):
+#         return [ atoi(c) for c in re.split('(\d+)', text) ]
     
-    def insert_frame(target_frames, file_path,start_frame=29, frame_rate=30):
-        file_name = file_path.split("/")[-1]
-        set_num, v_num, frame_num = file_name[:-4].split("_")
-        if int(frame_num) >= start_frame and int(frame_num) % frame_rate == 29:
-            target_frames.setdefault(set_num,{}).setdefault(v_num,[]).append(file_path)
-            return 1
-        else:
-            return 0
+#     def insert_frame(target_frames, file_path,start_frame=29, frame_rate=30):
+#         file_name = file_path.split("/")[-1]
+#         set_num, v_num, frame_num = file_name[:-4].split("_")
+#         if int(frame_num) >= start_frame and int(frame_num) % frame_rate == 29:
+#             target_frames.setdefault(set_num,{}).setdefault(v_num,[]).append(file_path)
+#             return 1
+#         else:
+#             return 0
 
-    def detect(file_path,  NMS_THRESH = 0.3):
-        if args.height == 720:
-            target_size = (960, 720)
-        elif args.height == 480:
-            target_size = (640, 480)
+#     def detect(file_path,  NMS_THRESH = 0.3):
+#         if args.height == 720:
+#             target_size = (960, 720)
+#         elif args.height == 480:
+#             target_size = (640, 480)
 
-        confidence, bboxes = im_detect(net, file_path, target_size)
+#         confidence, bboxes = im_detect(net, file_path, target_size)
     
-        dets = np.hstack((bboxes,confidence[:, np.newaxis])).astype(np.float32)
-        keep = nms(dets, NMS_THRESH)
-        print("{} Bboxes".format(len(keep)))
-        return dets[keep, :]
+#         dets = np.hstack((bboxes,confidence[:, np.newaxis])).astype(np.float32)
+#         keep = nms(dets, NMS_THRESH)
+#         print("{} Bboxes".format(len(keep)))
+#         return dets[keep, :]
 
 
-    def get_target_frames(image_set_list,  image_path):
-        target_frames = {}
-        total_frames = 0 
-        for set_num in image_set_list:
-            file_pattern = "{}/set{}_V*".format(image_path,set_num)
-            print(file_pattern)
-            file_list = sorted(glob.glob(file_pattern), key=natural_keys)
-            for file_path in file_list:
-                total_frames += insert_frame(target_frames, file_path)
+#     def get_target_frames(image_set_list,  image_path):
+#         target_frames = {}
+#         total_frames = 0 
+#         for set_num in image_set_list:
+#             file_pattern = "{}/set{}_V*".format(image_path,set_num)
+#             print(file_pattern)
+#             file_list = sorted(glob.glob(file_pattern), key=natural_keys)
+#             for file_path in file_list:
+#                 total_frames += insert_frame(target_frames, file_path)
 
-        return target_frames, total_frames 
+#         return target_frames, total_frames 
     
     
 
-    def detection_to_file(target_path, v_num, file_list, detect,total_frames, current_frames, max_proposal=100, thresh=0):
-        timer = Timer()
-        w = open("{}/{}.txt".format(target_path, v_num), "w")
-        for file_index, file_path in enumerate(file_list):
-            file_name = file_path.split("/")[-1]
-            set_num, v_num, frame_num = file_name[:-4].split("_")
-            frame_num = str(int(frame_num) +1)
+#     def detection_to_file(target_path, v_num, file_list, detect,total_frames, current_frames, max_proposal=100, thresh=0):
+#         timer = Timer()
+#         w = open("{}/{}.txt".format(target_path, v_num), "w")
+#         for file_index, file_path in enumerate(file_list):
+#             file_name = file_path.split("/")[-1]
+#             set_num, v_num, frame_num = file_name[:-4].split("_")
+#             frame_num = str(int(frame_num) +1)
 
-            timer.tic()
-            dets = detect(file_path)
+#             timer.tic()
+#             dets = detect(file_path)
 
-            timer.toc()
+#             timer.toc()
 
-            print('Detection Time:{:.3f}s on {}  {}/{} images'.format(timer.average_time,\
-                                                   file_name ,current_frames+file_index+1 , total_frames))
+#             print('Detection Time:{:.3f}s on {}  {}/{} images'.format(timer.average_time,\
+#                                                    file_name ,current_frames+file_index+1 , total_frames))
 
 
-            inds = np.where(dets[:, -1] >= thresh)[0]     
-            for i in inds:
-                bbox = dets[i, :4]
-                score = dets[i, -1]
+#             inds = np.where(dets[:, -1] >= thresh)[0]     
+#             for i in inds:
+#                 bbox = dets[i, :4]
+#                 score = dets[i, -1]
                 
                 
-                #Fix bug 6
-                x = bbox[0]
-                y = bbox[1] 
-                width = bbox[2] 
-                length =  bbox[3]
-                if score*100 > 70:
-                    print("{},{},{},{},{},{}\n".format(frame_num, x, y, width, length, score*100))
+#                 #Fix bug 6
+#                 x = bbox[0]
+#                 y = bbox[1] 
+#                 width = bbox[2] 
+#                 length =  bbox[3]
+#                 if score*100 > 70:
+#                     print("{},{},{},{},{},{}\n".format(frame_num, x, y, width, length, score*100))
                     
-                w.write("{},{},{},{},{},{}\n".format(frame_num, x, y, width, length, score*100))
+#                 w.write("{},{},{},{},{},{}\n".format(frame_num, x, y, width, length, score*100))
 
 
-        w.close()
-        print("Evalutaion file {} has been writen".format(w.name))   
-        return file_index + 1
+#         w.close()
+#         print("Evalutaion file {} has been writen".format(w.name))   
+#         return file_index + 1
 
 
 
 
-    OUTPUT_PATH = os.path.join("./output",  DETECTION_NAME)
-    if not os.path.exists(OUTPUT_PATH ):
-        os.makedirs(OUTPUT_PATH )       
+#     OUTPUT_PATH = os.path.join("./output",  DETECTION_NAME)
+#     if not os.path.exists(OUTPUT_PATH ):
+#         os.makedirs(OUTPUT_PATH )       
 
-    image_set_list = ["06", "07" , "08", "09", "10"]
-    target_frames, total_frames = get_target_frames(image_set_list,  IMG_PATH)
+#     image_set_list = ["06", "07" , "08", "09", "10"]
+#     target_frames, total_frames = get_target_frames(image_set_list,  IMG_PATH)
 
-    current_frames = 0
-    for set_num in target_frames:
-        target_path = os.path.join(OUTPUT_PATH , set_num)
-        if not os.path.exists(target_path):
-            os.makedirs(target_path)
-        for v_num, file_list in target_frames[set_num].items():
-            current_frames += detection_to_file(target_path, v_num, file_list, detect, total_frames, current_frames)
+#     current_frames = 0
+#     for set_num in target_frames:
+#         target_path = os.path.join(OUTPUT_PATH , set_num)
+#         if not os.path.exists(target_path):
+#             os.makedirs(target_path)
+#         for v_num, file_list in target_frames[set_num].items():
+#             current_frames += detection_to_file(target_path, v_num, file_list, detect, total_frames, current_frames)
 
 
 
@@ -323,6 +325,34 @@ def video_prediction(net, video_name, thresh):
             	miss += 1
         success,im = vidcap.read()
     print miss
+
+def recursive_prediction(net, root_folder, type, thresh)
+    for f in os.listdir(root_folder):
+        f = os.path.join(dirname, f)
+        if (os.path.isfile(f)):
+            im = cv2.imread(f)
+            confidence, bboxes = im_detect(net, im, (im.shape[0],im.shape[1]))
+            dets = np.hstack((bboxes,confidence[:, np.newaxis])).astype(np.float32)
+            keep = nms(dets, 0.3)
+            dets_nms = dets[keep, :]
+            inds = np.where(dets_nms[:, -1] >= thresh)[0]
+            for i in inds:
+                bbox = dets_nm[i, :4]
+                score = dets_nms[i, -1]
+                if score >=thresh:
+                    x = bbox[0]
+                    y = bbox[1]
+                    width = bbox[2]
+                    height  = bbox[3]
+                    im_bbox = im
+                    cv2.rectangle(im_bbox, (x,y), (x+width, y+height), (0,255,0),2)
+                    cv2.imshow('detections', im_bbox)
+                    cv2.waitKey(1)
+                else:
+                    print "No object detected in " + f
+        else:
+            print f + "is not existed"
+            pass
                 
 if __name__ == "__main__":
     args = parse_args()
@@ -334,13 +364,24 @@ if __name__ == "__main__":
     GPU_ID = args.gpu_id
     threshold = args.threshold
     DETECTION_NAME = args.dt_name
-    
+    recursive = args.resursive
+    root_folder = args.root_folder
+
+    if recursive and root_folder =='':
+        print "Please specify root folder path"
+        sys.exit(1)
+    elif !recursive and video_name =='':
+        print "Please specify the video path"
+        sys.exit(1)
+
     print("Loading Network")
     net = caffe.Net(args.prototxt, args.caffemodel, caffe.TEST)
     print("MC-CNN model loaded")
     # Detect the video
-    video_prediction(net,args.video_name,threshold)
-
+    if recursive:
+        recursive_prediction(net, root_folder, filetype, threshold)
+    else:
+        video_prediction(net,args.video_name,threshold)
 
     # Detect the caltech dataset
     # print("Start Detecting")
