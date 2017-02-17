@@ -1,11 +1,24 @@
 name: "MSCNN"
-input: "data"
-input_dim: 1
-input_dim: 3
-input_dim: 720
-input_dim: 960
+input: "spatial_data"
+input_shape {
+  input_dim: 1
+  input_dim: 3
+  input_dim: 720
+  input_dim: 960
+}
+input: "mix_data"
+input_shape {
+  input_dim: 1
+  input_dim: 4
+  input_dim: 720
+  input_dim: 960
+}
+input: "init_tag"
+input_shape {
+  input_dim: 1
+}
 layer {
-  bottom: "data"
+  bottom: "spatial_data"
   top: "conv1_1"
   name: "conv1_1"
   type: "Convolution"
@@ -540,17 +553,31 @@ layer {
   name: "bbox_nms"
   type: "Python"
   bottom: "bbox_pred"
+  bottom: 'proposals_score'
   bottom: "cls_pred"
-  bottom: "mix_data"
+  bottom: "init_tag"
   top: "bbox_nms"
   python_param {
-    module: "bbox_nms"
+    module: 'mod.bbox_nms'
+    layer: 'BboxNMSLayer'
+  }
+}
+layer {
+  name: "roi_pool_bbox"
+  type: "ROIPooling"
+  bottom: "bbox_nms"
+  bottom: "mix_data"
+  top: "roi_pool_bbox"
+  roi_pooling_param {
+    pooled_w: 128
+    pooled_h: 128
+    spatial_scale: 1 # 1/1
   }
 }
 layer {
   name: "mod_conv1"
   type: "Convolution"
-  bottom: "bbox_nms"
+  bottom: "roi_pool_bbox"
   top: "mod_conv1"
   param {
     lr_mult: 1
