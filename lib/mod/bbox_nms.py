@@ -4,10 +4,10 @@ from bbox_cal import nms, box_iou, center_distance, comp_bbox, filter_proposals,
 from ucfarg_cfg import ucfarg_cfg
 
 
-class BboxNMSLayer(caffe.layer):
+class BboxNMSLayer(caffe.Layer):
 	"""docstring for BboxNMS"""
 	def setup(self, bottom, up):
-		self._buf = [30][][]
+		self._buf = []
 		self._cur = 0
 		pass
 
@@ -39,7 +39,7 @@ class BboxNMSLayer(caffe.layer):
 		if boxes_nms.shape[0] == 0:
 			top[0].data[...] = np.array([])
 		if init_tag:
-			self._buf[_cur] = boxes_nms
+			self._buf.append(boxes_nms)
 			top[0].data[...] = np.array([])
 		else:
 			for i in reversed(xrange(self._cur)):

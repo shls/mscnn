@@ -4,7 +4,7 @@ from ucfarg_cfg import ucfarg_cfg
 
 
 
-class ModDataLayer(caffe.layer):
+class ModDataLayer(caffe.Layer):
 	"""docstring for ModDataLayer"""
 
 

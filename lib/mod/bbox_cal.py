@@ -4,7 +4,7 @@ from nms.gpu_nms import gpu_nms
 
 def nms(dets, thresh):
 	if dets.shape[0] == 0:
-	return []
+		return []
 	new_dets = np.copy(dets)
 	new_dets[:,2] += new_dets[:,0]
 	new_dets[:,3] += new_dets[:,1]
