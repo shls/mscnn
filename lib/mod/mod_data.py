@@ -19,7 +19,7 @@ class ModDataLayer(caffe.Layer):
 			self._cur = 0
 
 		index = self._indexlist[self._cur]
-		mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index, ucfarg_cfg.TRAIN.DATA_EXTENSION)))
+		mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index + ucfarg_cfg.TRAIN.DATA_EXTENSION)))
 
 		spatial_im = mix_im[:, :, :2].copy
 		spatial_im = cv2.resize(im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
@@ -32,7 +32,7 @@ class ModDataLayer(caffe.Layer):
 			print "image shape mismatch by Ls"
 			raise
 
-		lable_file = os.path.join(ucfarg_cfg.TRAIN.LABLE_ROOT, index, ucfarg_cfg.TRAIN.LABLE_EXTENSION)
+		lable_file = os.path.join(ucfarg_cfg.TRAIN.LABLE_ROOT, index + ucfarg_cfg.TRAIN.LABLE_EXTENSION)
 		assert os.path.exists(lable_file), 'Path does not exist: {}'.format(lable_file)
 
 		with open(lable_file) as f:
