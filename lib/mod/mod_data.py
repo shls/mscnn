@@ -1,6 +1,7 @@
 import caffe
 import numpy as np
 import os
+import cv2
 from ucfarg_cfg import ucfarg_cfg
 
 
