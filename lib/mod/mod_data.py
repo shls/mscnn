@@ -53,12 +53,12 @@ class ModDataLayer(caffe.Layer):
 
 		idx = 0
 		top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.SPATIAL_CHANNELS,
-			max(ucfarg_cfg.TRAIN.WIDTH), ucfarg_cfg.TRAIN.HEIGHT)
+			ucfarg_cfg.TRAIN.WIDTH, ucfarg_cfg.TRAIN.HEIGHT)
 		self._name_to_top_map['spatial_data'] = idx
 		idx += 1
 
 		top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.MIX_CHANNELS,
-			max(ucfarg_cfg.TRAIN.WIDTH), ucfarg_cfg.TRAIN.HEIGHT)
+			ucfarg_cfg.TRAIN.WIDTH, ucfarg_cfg.TRAIN.HEIGHT)
 		self._name_to_top_map['mix_data'] = idx
 		idx += 1
 		
