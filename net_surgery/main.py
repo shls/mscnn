@@ -26,7 +26,7 @@ fc_alex_params_s = {pr: (alex_net.params[pr][0].data, alex_net.params[pr][1].dat
 
 # Load New net
 new_net = caffe.Net('/home/ls/mscnn/net_surgery/train_mod.prototxt', caffe.TRAIN)
-new_mscnn_params_s = ['conv1_1','conv1_2','conv2_1','conv2_2','conv3_1','conv3_2','conv3_3','conv4_1','conv4_2','conv4_3','conv5_1','conv5_2','conv5_3', 'conv6_1','LFCN_1_3x5', 'LFCN_1_5x7', 'LFCN_2_3x5', 'LFCN_2_5x7', 'LFCN_3_3x5', 'LFCN_3_5x7' ,'LFCN_4_3x5', 'fc6','cls_pred', 'bbox_pred'] 
+new_mscnn_params_s = ['conv1_1','conv1_2','conv2_1','conv2_2','conv3_1','conv3_2','conv3_3','conv4_1','conv4_2','conv4_3','conv5_1','conv5_2','conv5_3', 'conv6_1','loss1-conv1','LFCN_1_3x5', 'LFCN_1_5x7', 'LFCN_2_3x5', 'LFCN_2_5x7', 'LFCN_3_3x5', 'LFCN_3_5x7' ,'LFCN_4_3x5', 'fc6','cls_pred', 'bbox_pred'] 
 
 new_alex_params_m = ['mod_conv1']
 new_alex_params_s = ['mod_conv2','mod_conv3','mod_conv4','mod_conv5', 'mod_fc6','mod_fc7','mod_fc8']
