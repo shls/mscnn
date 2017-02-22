@@ -17,7 +17,7 @@ class ModDataLayer(caffe.Layer):
 		if self._cur == len(self._indexlist):
 			self._cur = 0
 
-		index = _indexlist[self._cur]
+		index = self._indexlist[self._cur]
 		mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index, ucfarg_cfg.TRAIN.DATA_EXTENSION)))
 
 		spatial_im = mix_im[:, :, :2].copy
