@@ -5,15 +5,15 @@ from ucfarg_cfg import ucfarg_cfg
 
 
 class ModDataLayer(caffe.Layer):
-	"""docstring for ModDataLayer"""
+	# """docstring for ModDataLayer"""
 
 
 	def _get_next_batch(self):
-	"""Return the blobs to be used for the next minibatch.
+	# """Return the blobs to be used for the next minibatch.
 
-	If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
-	separate process and made available through self._blob_queue.
-	"""
+	# If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
+	# separate process and made available through self._blob_queue.
+	# """
 	if self._cur == len(self._indexlist):
 		self._cur = 0
 
