@@ -27,7 +27,7 @@ class ModDataLayer(caffe.Layer):
 		spatial_im -= ucfarg_cfg.TRAIN.MEAN_3
 		spatial_im = spatial_im.transpose((2,0,1))
 
-		mix_im = mix_im.astype(float32)
+		mix_im = mix_im.astype(np.float32)
 		mix_im -= ucfarg_cfg.TRAIN.MEAN_4
 		mix_im = mix_im.transpose((2,0,1))
 
