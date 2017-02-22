@@ -8,7 +8,7 @@ layer {
   top: 'init_tag'
   python_param {
     module: 'mod.mod_data'
-    layer: 'MODDataLayer'
+    layer: 'ModDataLayer'
   }
 }
 layer {
