@@ -20,8 +20,8 @@ __C.TRAIN.HEIGHT = 720
 __C.TRAIN.LIST_FILE = "/home/ls/dataset/mscnn/data/train.list"
 __C.TRAIN.DATA_EXTENSION = '.npy'
 __C.TRAIN.LABLE_EXTENSION = '.txt'
-__C.TRAIN.DATA_ROOT = '/home/ls/datasets/mscnn/data'
-__C.TRAIN.LABLE_ROOT = '/home/ls/datsets/mscnn/annotations'
+__C.TRAIN.DATA_ROOT = '/home/ls/dataset/mscnn/data'
+__C.TRAIN.LABLE_ROOT = '/home/ls/datset/mscnn/annotations'
 __C.TRAIN.ORG_W = 960
 __C.TRAIN.ORG_H = 540
 __C.TRAIN.TARGET_W = 960
@@ -31,8 +31,8 @@ __C.TRAIN.MEAN = [104, 117, 123]
 
 __C.VAL = edict()
 
-__C.VAL.DATA_ROOT = '/home/ls/datasets/mscnn/data'
-__C.VAL.LABLE_ROOT = '/home/ls/datsets/mscnn/annotations'
+__C.VAL.DATA_ROOT = '/home/ls/dataset/mscnn/data'
+__C.VAL.LABLE_ROOT = '/home/ls/datset/mscnn/annotations'
 __C.VAL.LIST_FILE = "/home/ls/dataset/mscnn/data/val.list"
 
 
