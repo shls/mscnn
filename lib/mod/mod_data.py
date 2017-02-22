@@ -49,7 +49,6 @@ class ModDataLayer(caffe.Layer):
 		# Setup ModDataLayer
 		self._cur = 0
 		self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TRAIN.LIST_FILE)]
-		self._perm
 		self._name_to_top_map = {}
 
 		idx = 0
