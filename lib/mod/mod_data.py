@@ -14,36 +14,36 @@ class ModDataLayer(caffe.Layer):
 	# If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
 	# separate process and made available through self._blob_queue.
 	# """
-	if self._cur == len(self._indexlist):
-		self._cur = 0
+		if self._cur == len(self._indexlist):
+			self._cur = 0
 
-	index = _indexlist[self._cur]
-	mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index, ucfarg_cfg.TRAIN.DATA_EXTENSION)))
+		index = _indexlist[self._cur]
+		mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index, ucfarg_cfg.TRAIN.DATA_EXTENSION)))
 
-	spatial_im = mix_im[:, :, :2].copy
-	spatial_im = cv2.resize(im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
-	spatial_im -= ucfarg_cfg.TRAIN.MEAN
-	spatial_im = spatial_im.transpose((2,0,1))
+		spatial_im = mix_im[:, :, :2].copy
+		spatial_im = cv2.resize(im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
+		spatial_im -= ucfarg_cfg.TRAIN.MEAN
+		spatial_im = spatial_im.transpose((2,0,1))
 
-	mix_im = mix_im.transpose((2,0,1))
+		mix_im = mix_im.transpose((2,0,1))
 
-	if mix_im.shape != 4 or spatial_im.shape !=3:
-		print "image shape mismatch by Ls"
-		raise
+		if mix_im.shape != 4 or spatial_im.shape !=3:
+			print "image shape mismatch by Ls"
+			raise
 
-	lable_file = os.path.join(ucfarg_cfg.TRAIN.LABLE_ROOT, index, ucfarg_cfg.TRAIN.LABLE_EXTENSION)
-	assert os.path.exists(lable_file), 'Path does not exist: {}'.format(lable_file)
+		lable_file = os.path.join(ucfarg_cfg.TRAIN.LABLE_ROOT, index, ucfarg_cfg.TRAIN.LABLE_EXTENSION)
+		assert os.path.exists(lable_file), 'Path does not exist: {}'.format(lable_file)
 
-	with open(lable_file) as f:
-		lable_data = f.readline()
+		with open(lable_file) as f:
+			lable_data = f.readline()
 
-	lable = int(lable_data.split()[0])
-	init_tag = int(lable_data.split()[1])
+		lable = int(lable_data.split()[0])
+		init_tag = int(lable_data.split()[1])
 
-	blobs = {'init_tag': init_tag, 'labels': lable, 'mix_data': mix_im, 'spatial_data': spatial_im}
-	
-	self._cur += 1
-	return blobs
+		blobs = {'init_tag': init_tag, 'labels': lable, 'mix_data': mix_im, 'spatial_data': spatial_im}
+		
+		self._cur += 1
+		return blobs
 
 	def setup(self, bottom, top):
 		# Setup ModDataLayer
