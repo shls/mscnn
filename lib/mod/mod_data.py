@@ -22,12 +22,13 @@ class ModDataLayer(caffe.Layer):
 		index = self._indexlist[self._cur]
 		mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index + ucfarg_cfg.TRAIN.DATA_EXTENSION)))
 
-		spatial_im = mix_im[:, :, :2].copy
+		spatial_im = np.asarray(mix_im[:, :, 0:-1])
 		spatial_im = cv2.resize(spatial_im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
-		spatial_im -= ucfarg_cfg.TRAIN.MEAN
+		spatial_im -= ucfarg_cfg.TRAIN.MEAN_3
 		spatial_im = spatial_im.transpose((2,0,1))
 
-		mix_im = mix_im.transpose((2,0,1,3))
+		mix_im -= ucfarg_cfg.TRAIN.MEAN_4
+		mix_im = mix_im.transpose((2,0,1))
 
 		if mix_im.shape != 4 or spatial_im.shape !=3:
 			print "image shape mismatch by Ls"

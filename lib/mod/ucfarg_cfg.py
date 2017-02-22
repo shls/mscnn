@@ -27,14 +27,16 @@ __C.TRAIN.ORG_H = 540
 __C.TRAIN.TARGET_W = 960
 __C.TRAIN.TARGET_H = 720
 __C.TRAIN.RATIOS = (1, 0.75)
-__C.TRAIN.MEAN = [104, 117, 123]
+__C.TRAIN.MEAN_3 = [104, 117, 123]
+__C.TRAIN.MEAN_4 = [104, 117, 123]
 
 __C.VAL = edict()
 
 __C.VAL.DATA_ROOT = '/home/ls/dataset/mscnn/data'
 __C.VAL.LABLE_ROOT = '/home/ls/datset/mscnn/annotations'
 __C.VAL.LIST_FILE = "/home/ls/dataset/mscnn/data/val.list"
-
+__C.VAL.MEAN_3 = [104, 117, 123]
+__C.VAL.MEAN_4 = [115, 115, 115]
 
 __C.category = 2
 __C.two_category = ('__background__', 'potential_event')
