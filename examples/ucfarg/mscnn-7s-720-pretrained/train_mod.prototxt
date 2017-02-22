@@ -21,6 +21,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv1_1"
@@ -37,6 +45,14 @@ layer {
     num_output: 64
     pad: 1
     kernel_size: 3
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -66,6 +82,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv2_1"
@@ -82,6 +106,14 @@ layer {
     num_output: 128
     pad: 1
     kernel_size: 3
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -111,6 +143,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv3_1"
@@ -128,6 +168,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv3_2"
@@ -144,6 +192,14 @@ layer {
     num_output: 256
     pad: 1
     kernel_size: 3
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -173,6 +229,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv4_1"
@@ -189,6 +253,14 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -207,6 +279,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv4_3"
@@ -223,6 +303,14 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -243,6 +331,14 @@ layer {
     kernel_w: 3
     kernel_h: 5
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "loss1-conv1"
@@ -255,6 +351,14 @@ layer {
     pad_h: 3
     kernel_w: 5
     kernel_h: 7
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -278,6 +382,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv5_1"
@@ -295,6 +407,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv5_2"
@@ -311,6 +431,14 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -331,6 +459,14 @@ layer {
     kernel_w: 3
     kernel_h: 5
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv5_3"
@@ -343,6 +479,14 @@ layer {
     pad_h: 3
     kernel_w: 5
     kernel_h: 7
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -366,6 +510,14 @@ layer {
     pad: 1
     kernel_size: 3
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv6_1"
@@ -385,6 +537,14 @@ layer {
     kernel_w: 3
     kernel_h: 5
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   bottom: "conv6_1"
@@ -397,6 +557,14 @@ layer {
     pad_h: 3
     kernel_w: 5
     kernel_h: 7
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {
@@ -421,6 +589,14 @@ layer {
     pad_h: 2
     kernel_w: 3
     kernel_h: 5
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 
@@ -509,6 +685,14 @@ layer {
   inner_product_param {
     num_output: 2048
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   name: "relu6"
@@ -533,6 +717,14 @@ layer {
   inner_product_param {
     num_output: 2
   }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
 }
 layer {
   name: "bbox_pred"
@@ -541,6 +733,14 @@ layer {
   top: "bbox_pred"
   inner_product_param {
     num_output: 8
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
   }
 }
 layer {

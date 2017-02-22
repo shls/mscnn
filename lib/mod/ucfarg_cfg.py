@@ -17,17 +17,24 @@ __C.TRAIN.SPATIAL_CHANNELS = 3
 __C.TRAIN.MIX_CHANNELS = 4
 __C.TRAIN.WIDTH = 960
 __C.TRAIN.HEIGHT = 720
-__C.TRAIN.LIST_FILE = ""
+__C.TRAIN.LIST_FILE = "/home/ls/dataset/mscnn/data/train.list"
 __C.TRAIN.DATA_EXTENSION = '.npy'
 __C.TRAIN.LABLE_EXTENSION = '.txt'
-__C.TRAIN.DATA_ROOT = '/home/ls/data/'
-__C.TRAIN.LABLE_ROOT = '/home/ls/annotations/'
+__C.TRAIN.DATA_ROOT = '/home/ls/datasets/mscnn/data'
+__C.TRAIN.LABLE_ROOT = '/home/ls/datsets/mscnn/annotations'
 __C.TRAIN.ORG_W = 960
 __C.TRAIN.ORG_H = 540
 __C.TRAIN.TARGET_W = 960
 __C.TRAIN.TARGET_H = 720
 __C.TRAIN.RATIOS = (1, 0.75)
 __C.TRAIN.MEAN = [104, 117, 123]
+
+__C.VAL = edict()
+
+__C.VAL.DATA_ROOT = '/home/ls/datasets/mscnn/data'
+__C.VAL.LABLE_ROOT = '/home/ls/datsets/mscnn/annotations'
+__C.VAL.LIST_FILE = "/home/ls/dataset/mscnn/data/val.list"
+
 
 __C.category = 2
 __C.two_category = ('__background__', 'potential_event')

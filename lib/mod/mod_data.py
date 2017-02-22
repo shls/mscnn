@@ -35,12 +35,14 @@ class ModDataLayer(caffe.Layer):
 	assert os.path.exists(lable_file), 'Path does not exist: {}'.format(lable_file)
 
 	with open(lable_file) as f:
-		lable_data = f.read_line()
+		lable_data = f.readline()
 
 	lable = int(lable_data.split()[0])
 	init_tag = int(lable_data.split()[1])
 
 	blobs = {'init_tag': init_tag, 'labels': lable, 'mix_data': mix_im, 'spatial_data': spatial_im}
+	
+	self._cur += 1
 	return blobs
 
 	def setup(self, bottom, top):

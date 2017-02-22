@@ -10,7 +10,7 @@ import caffe
 	
 # Load the original network and extract the fully connected layers' parameters.
 mscnn_net = caffe.Net('/home/ls/mscnn/net_surgery/mscnn_deploy.prototxt','/home/ls/mscnn/net_surgery/mscnn_deploy.caffemodel', caffe.TRAIN)
-mscnn_params_s = ['conv1_1','conv1_2','conv2_1','conv2_2','conv3_1','conv3_2','conv3_3','conv4_1','conv4_2','conv4_3','conv5_1','conv5_2','conv5_3', 'conv6_1','LFCN_1_3x5', 'LFCN_1_5x7', 'LFCN_2_3x5', 'LFCN_2_5x7', 'LFCN_3_3x5', 'LFCN_3_5x7' ,'LFCN_4_3x5', 'fc6','cls_pred', 'bbox_pred']
+mscnn_params_s = ['conv1_1','conv1_2','conv2_1','conv2_2','conv3_1','conv3_2','conv3_3','conv4_1','conv4_2','conv4_3','conv5_1','conv5_2','conv5_3', 'conv6_1','loss1-conv1','LFCN_1_3x5', 'LFCN_1_5x7', 'LFCN_2_3x5', 'LFCN_2_5x7', 'LFCN_3_3x5', 'LFCN_3_5x7' ,'LFCN_4_3x5', 'fc6','cls_pred', 'bbox_pred']
 
 alex_net = caffe.Net('/home/ls/mscnn/net_surgery/alex_train_val.prototxt','/home/ls/mscnn/net_surgery/alex_train_val.caffemodel', caffe.TRAIN)
 alex_params_m = ['conv1']
