@@ -31,20 +31,26 @@ class ModDataLayer(caffe.Layer):
 		mix_im -= ucfarg_cfg.TRAIN.MEAN_4
 		mix_im = mix_im.transpose((2,0,1))
 
-		if mix_im.shape != 4 or spatial_im.shape !=3:
+		if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
 			print "image shape mismatch by Ls"
 			raise
 
-		lable_file = os.path.join(ucfarg_cfg.TRAIN.LABLE_ROOT, index + ucfarg_cfg.TRAIN.LABLE_EXTENSION)
-		assert os.path.exists(lable_file), 'Path does not exist: {}'.format(lable_file)
+		label_file = os.path.join(ucfarg_cfg.TRAIN.LABEL_ROOT, index + ucfarg_cfg.TRAIN.LABEL_EXTENSION)
+		assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
 
-		with open(lable_file) as f:
-			lable_data = f.readline()
+		with open(label_file) as f:
+			label_data = f.readline()
 
-		lable = int(lable_data.split()[0])
-		init_tag = int(lable_data.split()[1])
+		label = int(label_data.split()[0])
+		init_tag = int(label_data.split()[1])
 
-		blobs = {'init_tag': init_tag, 'labels': lable, 'mix_data': mix_im, 'spatial_data': spatial_im}
+		label_blob = np.zeros((0), dtype=np.float32)
+		init_tag_blob = np.zeros((0), dtype=np.float32)
+
+		label_blob = np.hstack((label_blob, label))
+		init_tag_blob = np.hstack((init_tag_blob, init_tag))
+
+		blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': mix_im, 'spatial_data': spatial_im}
 		
 		self._cur += 1
 		return blobs
@@ -84,9 +90,10 @@ class ModDataLayer(caffe.Layer):
 		for blob_name, blob in blobs.iteritems():
 			top_ind = self._name_to_top_map[blob_name]
 			# Reshape net's input blobs
-			top[top_ind].reshape(blob.shape)
+			top[top_ind].reshape(*(blob.shape))
 			# Copy data into net's input blobs
 			top[top_ind].data[...] = blob.astype(np.float32, copy=False)
+		print "forward done"
 
 	def backward(self, top, propagate_down, bottom):
 		pass
