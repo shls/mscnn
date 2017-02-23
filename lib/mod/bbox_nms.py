@@ -1,17 +1,17 @@
 import caffe
 import numpy as np
-from bbox_cal import nms, box_iou, center_distance, comp_bbox, filter_proposals, get_confidence
+from bbox_cal import nms, box_iou, center_distance, comp_bbox, bbox_denormalize, filter_proposals, get_confidence
 from ucfarg_cfg import ucfarg_cfg
 
 
 class BboxNMSLayer(caffe.Layer):
 	"""docstring for BboxNMS"""
-	def setup(self, bottom, up):
+	def setup(self, bottom, top):
 		self._buf = []
 		self._cur = 0
 		pass
 
-	def forward(self, bottom, up):
+	def forward(self, bottom, top):
 
 		bbox_pred = bottom[0].data
 		proposals = bottom[1].data.reshape((-1,6))[:,1:]
@@ -32,9 +32,11 @@ class BboxNMSLayer(caffe.Layer):
 		confidence = get_confidence(cls_pred)
 
 		dets = np.hstack((boxes, confidence[:, np.newaxis])).astype(np.float32)
-		keep_nms = nms(dets, 0.3)
+		keep_nms = nms(dets, ucfarg_cfg.TRAIN.NMS_THRESH)
 		dets_nms = dets[keep_nms, :]
-		boxes_nms = dets_nms[i, :4]
+		boxes_nms = dets_nms[:, :4]
+		inds = np.where(dets_nms[:, -1] >= ucfarg_cfg.TRAIN.NMS_CONFI_THRESH)[0]
+		boxes_nms = dets_nms[inds, :4]
 
 		if boxes_nms.shape[0] == 0:
 			top[0].data[...] = np.array([])
@@ -52,9 +54,9 @@ class BboxNMSLayer(caffe.Layer):
 
 			top[0].data[...] = boxes_nms
 
-	def reshape(self, bottom, up):
+	def reshape(self, bottom, top):
 		pass
 
-	def backward(self, bottom, up):
+	def backward(self, bottom, top):
 		pass
 

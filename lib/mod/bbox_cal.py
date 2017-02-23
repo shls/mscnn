@@ -1,6 +1,8 @@
 import numpy as np
 import math
 from nms.gpu_nms import gpu_nms
+from ucfarg_cfg import ucfarg_cfg
+
 
 def nms(dets, thresh):
 	if dets.shape[0] == 0:
@@ -8,7 +10,7 @@ def nms(dets, thresh):
 	new_dets = np.copy(dets)
 	new_dets[:,2] += new_dets[:,0]
 	new_dets[:,3] += new_dets[:,1]
-	return gpu_nms(new_dets, thresh, device_id=GPU_ID)
+	return gpu_nms(new_dets, thresh, device_id=ucfarg_cfg.GPU_ID)
 
 
 def box_iou(boxA, boxB):
@@ -67,9 +69,9 @@ def bbox_denormalize(bbox_pred, proposals, ratios, orgW, orgH):
 	bbox_means = [0, 0, 0, 0]
 	bbox_stds = [0.1, 0.1, 0.2, 0.2]
 
-	if args.do_bb_norm:
-		bbox_pred *= bbox_stds 
-		bbox_pred += bbox_means
+	# if args.do_bb_norm:
+		# bbox_pred *= bbox_stds 
+		# bbox_pred += bbox_means
 
 	ctr_x = proposals[:,0]+0.5*proposals[:,2]
 	ctr_y = proposals[:,1]+0.5*proposals[:,3]

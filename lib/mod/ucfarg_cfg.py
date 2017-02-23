@@ -29,6 +29,8 @@ __C.TRAIN.TARGET_H = 720
 __C.TRAIN.RATIOS = (1, 0.75)
 __C.TRAIN.MEAN_3 = [104, 117, 123]
 __C.TRAIN.MEAN_4 = [115, 115, 115, 115]
+__C.TRAIN.NMS_THRESH = 0.3
+__C.TRAIN.NMS_CONFI_THRESH = 0.9
 
 __C.VAL = edict()
 
@@ -37,6 +39,9 @@ __C.VAL.LABEL_ROOT = '/home/ls/dataset/mscnn/annotations'
 __C.VAL.LIST_FILE = "/home/ls/dataset/mscnn/data/val.list"
 __C.VAL.MEAN_3 = [104, 117, 123]
 __C.VAL.MEAN_4 = [115, 115, 115, 115]
+
+
+__C.GPU_ID = 0
 
 __C.category = 2
 __C.two_category = ('__background__', 'potential_event')

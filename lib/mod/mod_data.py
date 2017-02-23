@@ -27,9 +27,15 @@ class ModDataLayer(caffe.Layer):
 		spatial_im -= ucfarg_cfg.TRAIN.MEAN_3
 		spatial_im = spatial_im.transpose((2,0,1))
 
+		blob_spatial_im = np.zeros((1, spatial_im.shape[0], spatial_im.shape[1], spatial_im.shape[2]), dtype=np.float32)
+		blob_spatial_im[0, :, :, :] = spatial_im
+
 		mix_im = mix_im.astype(np.float32)
 		mix_im -= ucfarg_cfg.TRAIN.MEAN_4
 		mix_im = mix_im.transpose((2,0,1))
+
+		blob_mix_im = np.zeros((1, mix_im.shape[0], mix_im.shape[1], mix_im.shape[2]), dtype=np.float32)
+		blob_mix_im[0, :, :, :] = mix_im
 
 		if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
 			print "image shape mismatch by Ls"
@@ -50,7 +56,7 @@ class ModDataLayer(caffe.Layer):
 		label_blob = np.hstack((label_blob, label))
 		init_tag_blob = np.hstack((init_tag_blob, init_tag))
 
-		blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': mix_im, 'spatial_data': spatial_im}
+		blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': mix_im, 'spatial_data': blob_spatial_im}
 		
 		self._cur += 1
 		return blobs
@@ -63,12 +69,12 @@ class ModDataLayer(caffe.Layer):
 
 		idx = 0
 		top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.SPATIAL_CHANNELS,
-			ucfarg_cfg.TRAIN.WIDTH, ucfarg_cfg.TRAIN.HEIGHT)
+			ucfarg_cfg.TRAIN.HEIGHT, ucfarg_cfg.TRAIN.WIDTH)
 		self._name_to_top_map['spatial_data'] = idx
 		idx += 1
 
 		top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.MIX_CHANNELS,
-			ucfarg_cfg.TRAIN.WIDTH, ucfarg_cfg.TRAIN.HEIGHT)
+			ucfarg_cfg.TRAIN.HEIGHT, ucfarg_cfg.TRAIN.WIDTH)
 		self._name_to_top_map['mix_data'] = idx
 		idx += 1
 		
@@ -93,7 +99,6 @@ class ModDataLayer(caffe.Layer):
 			top[top_ind].reshape(*(blob.shape))
 			# Copy data into net's input blobs
 			top[top_ind].data[...] = blob.astype(np.float32, copy=False)
-		print "forward done"
 
 	def backward(self, top, propagate_down, bottom):
 		pass
