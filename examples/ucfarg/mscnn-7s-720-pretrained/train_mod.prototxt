@@ -750,7 +750,9 @@ layer {
   bottom: 'proposals_score'
   bottom: "cls_pred"
   bottom: "init_tag"
+  bottom: "label"
   top: "bbox_nms"
+  top: "label_reshape"
   python_param {
     module: 'mod.bbox_nms'
     layer: 'BboxNMSLayer'
@@ -1085,7 +1087,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 10
+    num_output: 11
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -1100,6 +1102,6 @@ layer {
   name: "loss"
   type: "SoftmaxWithLoss"
   bottom: "mod_fc8_ucf"
-  bottom: "label"
+  bottom: "label_reshape"
   top: "loss"
 }

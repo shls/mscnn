@@ -56,7 +56,7 @@ class ModDataLayer(caffe.Layer):
 		label_blob = np.hstack((label_blob, label))
 		init_tag_blob = np.hstack((init_tag_blob, init_tag))
 
-		blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': mix_im, 'spatial_data': blob_spatial_im}
+		blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
 		
 		self._cur += 1
 		return blobs

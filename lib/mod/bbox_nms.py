@@ -9,7 +9,8 @@ class BboxNMSLayer(caffe.Layer):
 	def setup(self, bottom, top):
 		self._buf = []
 		self._cur = 0
-		pass
+		top[0].reshape(1,5)
+		top[1].reshape(1)
 
 	def forward(self, bottom, top):
 
@@ -19,6 +20,7 @@ class BboxNMSLayer(caffe.Layer):
 		proposals[:,3] -=   proposals[:,1]
 		cls_pred = bottom[2].data
 		init_tag = bottom[3].data
+		labels = bottom[4].data
 
 		keeps = filter_proposals(proposals)
 		bbox_pred =  bbox_pred[keeps]
@@ -39,20 +41,29 @@ class BboxNMSLayer(caffe.Layer):
 		boxes_nms = dets_nms[inds, :4]
 
 		if boxes_nms.shape[0] == 0:
-			top[0].data[...] = np.array([])
+			top[0].data[...] = np.array(([0,0,0,128,128]))
+			top[1].data[...] = np.array([0])
 		if init_tag:
 			self._buf.append(boxes_nms)
-			top[0].data[...] = np.array([])
+			top[0].data[...] = np.array(([0,0,0,128,128]))
+			top[1].data[...] = np.array([0])
 		else:
+			print len(self._buf)
+			print self._cur
 			for i in reversed(xrange(self._cur)):
 				boxes_nms = comp_bbox(boxes_nms, self._buf[i])
-			for i in range(30,self._cur,-1):
+			for i in range(29,self._cur-1,-1):
 				boxes_nms = comp_bbox(boxes_nms, self._buf[i])
 
 			#Compensate for batch index
 			boxes_nms = np.insert(boxes_nms,0,0,axis=1)
+			print boxes_nms.shape
+
+			top[0].reshape(len(boxes_nms),5)
+			top[1].reshape(len(boxes_nms))
 
 			top[0].data[...] = boxes_nms
+			top[1].data[...] = np.full((len(boxes_nms)), labels)
 
 	def reshape(self, bottom, top):
 		pass
