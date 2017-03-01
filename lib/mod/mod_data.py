@@ -1,9 +1,14 @@
-import caffe
+import sys
+caffe_root = '/home/ls/mscnn/'
+sys.path.insert(0, caffe_root + "install/python")
+sys.path.insert(0, caffe_root + "lib")
+
 import numpy as np
 import os
 import cv2
 from ucfarg_cfg import ucfarg_cfg
 
+import caffe
 
 
 class ModDataLayer(caffe.Layer):
@@ -69,12 +74,12 @@ class ModDataLayer(caffe.Layer):
 
 		idx = 0
 		top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.SPATIAL_CHANNELS,
-			ucfarg_cfg.TRAIN.HEIGHT, ucfarg_cfg.TRAIN.WIDTH)
+			ucfarg_cfg.TRAIN.TARGET_H, ucfarg_cfg.TRAIN.TARGET_W)
 		self._name_to_top_map['spatial_data'] = idx
 		idx += 1
 
 		top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.MIX_CHANNELS,
-			ucfarg_cfg.TRAIN.HEIGHT, ucfarg_cfg.TRAIN.WIDTH)
+			ucfarg_cfg.TRAIN.ORG_H, ucfarg_cfg.TRAIN.ORG_W)
 		self._name_to_top_map['mix_data'] = idx
 		idx += 1
 		

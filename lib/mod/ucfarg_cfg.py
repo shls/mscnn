@@ -15,8 +15,6 @@ __C.TRAIN = edict()
 __C.TRAIN.IMS_PER_BATCH = 1
 __C.TRAIN.SPATIAL_CHANNELS = 3
 __C.TRAIN.MIX_CHANNELS = 4
-__C.TRAIN.WIDTH = 960
-__C.TRAIN.HEIGHT = 720
 __C.TRAIN.LIST_FILE = "/home/ls/dataset/mscnn/data/train.list"
 __C.TRAIN.DATA_EXTENSION = '.npy'
 __C.TRAIN.LABEL_EXTENSION = '.txt'
@@ -41,7 +39,7 @@ __C.VAL.MEAN_3 = [104, 117, 123]
 __C.VAL.MEAN_4 = [115, 115, 115, 115]
 
 
-__C.GPU_ID = 1
+__C.GPU_ID = 0
 
 __C.category = 2
 __C.two_category = ('__background__', 'potential_event')

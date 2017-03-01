@@ -47,7 +47,7 @@ def center_distance(boxA, boxB):
 
 
 def comp_bbox(current_bbox, last_bbox):
-	if len(current_bbox.shape) != 4 or len(last_bbox) != 4 or current_bbox.shape[1] != 5 or last_bbox.shape[1] != 5:
+	if len(current_bbox.shape) != 2 or len(last_bbox.shape) != 2 or current_bbox.shape[1] != 4 or last_bbox.shape[1] != 4:
 		print "bbox mismatch by Ls in bbox_cal.py"
 		raise
 	skip_list = []
@@ -56,13 +56,13 @@ def comp_bbox(current_bbox, last_bbox):
 			if j in skip_list:
 				break
 			else:
-				iou = box_iou(current_bbox[i][1:], last_bbox[j][1:])
-				cd = center_distance(current_bbox[i][1:], last_bbox[j][1:])
+				iou = box_iou(current_bbox[i], last_bbox[j])
+				cd = center_distance(current_bbox[i], last_bbox[j])
 				if iou > 0.45 and cd < 230:
+					current_bbox[i][0] = min(current_bbox[i][0], last_bbox[j][0])
 					current_bbox[i][1] = min(current_bbox[i][1], last_bbox[j][1])
-					current_bbox[i][2] = min(current_bbox[i][2], last_bbox[j][2])
+					current_bbox[i][2] = max(current_bbox[i][2], last_bbox[j][2])
 					current_bbox[i][3] = max(current_bbox[i][3], last_bbox[j][3])
-					current_bbox[i][4] = max(current_bbox[i][4], last_bbox[j][4])
 					skip_list.append(j)
 					break
 	return current_bbox

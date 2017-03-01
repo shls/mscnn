@@ -765,8 +765,8 @@ layer {
   bottom: "bbox_nms"
   top: "roi_pool_bbox"
   roi_pooling_param {
-    pooled_w: 227
-    pooled_h: 227
+    pooled_w: 128
+    pooled_h: 128
     spatial_scale: 1 # 1/1
   }
 }
@@ -994,10 +994,10 @@ layer {
   }
 }
 layer {
-  name: "mod_fc6"
+  name: "mod_fc6_ucf"
   type: "InnerProduct"
   bottom: "mod_pool5"
-  top: "mod_fc6"
+  top: "mod_fc6_ucf"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -1019,25 +1019,25 @@ layer {
   }
 }
 layer {
-  name: "mod_relu6"
+  name: "mod_relu6_ucf"
   type: "ReLU"
-  bottom: "mod_fc6"
-  top: "mod_fc6"
+  bottom: "mod_fc6_ucf"
+  top: "mod_fc6_ucf"
 }
 layer {
-  name: "mod_drop6"
+  name: "mod_drop6_ucf"
   type: "Dropout"
-  bottom: "mod_fc6"
-  top: "mod_fc6"
+  bottom: "mod_fc6_ucf"
+  top: "mod_fc6_ucf"
   dropout_param {
     dropout_ratio: 0.5
   }
 }
 layer {
-  name: "mod_fc7"
+  name: "mod_fc7_ucf"
   type: "InnerProduct"
-  bottom: "mod_fc6"
-  top: "mod_fc7"
+  bottom: "mod_fc6_ucf"
+  top: "mod_fc7_ucf"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -1059,16 +1059,16 @@ layer {
   }
 }
 layer {
-  name: "mod_relu7"
+  name: "mod_relu7_ucf"
   type: "ReLU"
-  bottom: "mod_fc7"
-  top: "mod_fc7"
+  bottom: "mod_fc7_ucf"
+  top: "mod_fc7_ucf"
 }
 layer {
-  name: "mod_drop7"
+  name: "mod_drop7_ucf"
   type: "Dropout"
-  bottom: "mod_fc7"
-  top: "mod_fc7"
+  bottom: "mod_fc7_ucf"
+  top: "mod_fc7_ucf"
   dropout_param {
     dropout_ratio: 0.5
   }
@@ -1076,7 +1076,7 @@ layer {
 layer {
   name: "mod_fc8_ucf"
   type: "InnerProduct"
-  bottom: "mod_fc7"
+  bottom: "mod_fc7_ucf"
   top: "mod_fc8_ucf"
   param {
     lr_mult: 10
