@@ -53,7 +53,7 @@ class BboxNMSLayer(caffe.Layer):
 
 		if self._last_event_index != event_index:
 			self._cur = 0
-			self._buf[:] = []
+			self._buf = []
 			self._last_event_index = event_index
 			if boxes_nms_xyxy.shape[0] != 0:
 				self._buf.append(boxes_nms_xyxy)
