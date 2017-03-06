@@ -9,7 +9,7 @@ class BboxNMSLayer(caffe.Layer):
 	def setup(self, bottom, top):
 		self._buf = []
 		self._cur = 0
-		self._old_event = 1
+		self._last_event_index = 0
 		top[0].reshape(1,5)
 		top[1].reshape(1)
 
@@ -20,7 +20,7 @@ class BboxNMSLayer(caffe.Layer):
 		proposals[:,2] -=   proposals[:,0]
 		proposals[:,3] -=   proposals[:,1]
 		cls_pred = bottom[2].data
-		init_tag = bottom[3].data
+		event_index = bottom[3].data
 		labels = bottom[4].data
 
 		keeps = filter_proposals(proposals)
@@ -51,54 +51,60 @@ class BboxNMSLayer(caffe.Layer):
 		boxes_cache[:,2:] = boxes_nms[:, 0:2]
 		boxes_nms_xyxy += boxes_cache
 
-		if boxes_nms.shape[0] == 0:
-			top[0].data[...] = np.array([[0,0,0,128,128],])
-			top[1].data[...] = np.array([[[[0]]]])
-			# print "top[0].shape: ", top[0].shape
-			# print "top[0].data: ", top[0].data
-			print "bbox nms forward done"
-			pass
-		if init_tag:
-			if not self._old_event:
-				self._cur = 0
-				self._old_event = 1
-			if len(self._buf) == 30:
-				self._buf[self._cur] = boxes_nms_xyxy
-			else:
+		if self._last_event_index != event_index:
+			self._cur = 0
+			self._buf[:] = []
+			self._last_event_index = event_index
+			if boxes_nms_xyxy.shape[0] != 0:
 				self._buf.append(boxes_nms_xyxy)
-			self._cur +=1
+				self._cur +=1
 			top[0].data[...] = np.array([[0,0,0,128,128],])
 			top[1].data[...] = np.array([[[[0]]]])
-			# print "top[0].shape: ", top[0].shape
-			# print "top[0].data: ", top[0].data
 		else:
-			self._old_event = 0
-			for i in reversed(xrange(self._cur)):
-				boxes_nms_xyxy = comp_bbox(boxes_nms_xyxy, self._buf[i])
-			for i in range(29,self._cur-1,-1):
-				boxes_nms_xyxy = comp_bbox(boxes_nms_xyxy, self._buf[i])
+			if boxes_nms_xyxy.shape[0] != 0:
+				if len(self._buf) != 30:
+					self._buf.append(boxes_nms_xyxy)
+					self._cur += 1
+					top[0].data[...] = np.array([[0,0,0,128,128],])
+					top[1].data[...] = np.array([[[[0]]]])
+				else:
+					for i in reversed(xrange(self._cur)):
+						boxes_nms_xyxy = comp_bbox(boxes_nms_xyxy, self._buf[i])
+					for i in range(29,self._cur-1,-1):
+						boxes_nms_xyxy = comp_bbox(boxes_nms_xyxy, self._buf[i])
 
-			if self._cur == 30:
-				self._cur = 0
-				self._buf[self._cur] = boxes_nms_xyxy
-				self._cur += 1
+					if self._cur == 30:
+						self._cur = 0
+						self._buf[self._cur] = boxes_nms_xyxy
+						self._cur += 1
+					else:
+						self._buf[self._cur] = boxes_nms_xyxy
+						self._cur += 1
+
+					#Compensate for batch index
+					boxes_nms_xyxy = np.insert(boxes_nms_xyxy,0,0,axis=1)
+
+					top[0].reshape(len(boxes_nms_xyxy),5)
+					top[1].reshape(len(boxes_nms_xyxy),1,1,1)
+
+					top[0].data[...] = boxes_nms_xyxy
+					top[1].data[...] = np.full((len(boxes_nms_xyxy),1,1,1), labels)
+
 			else:
-				self._buf[self._cur] = boxes_nms_xyxy
-				self._cur += 1
-
-			#Compensate for batch index
-			boxes_nms_xyxy = np.insert(boxes_nms_xyxy,0,0,axis=1)
-
-			top[0].reshape(len(boxes_nms_xyxy),5)
-			top[1].reshape(len(boxes_nms_xyxy),1,1,1)
-			# print "boxes_xyxy: ", boxes_nms_xyxy
-
-			top[0].data[...] = boxes_nms_xyxy
-			top[1].data[...] = np.full((len(boxes_nms_xyxy),1,1,1), labels)
-			# print "labels: ", labels
-			# print "top[0].shape: ", top[0].shape
-			# print "top[0].data: ", top[0].data
-		print "bbox nms forward done"
+				if len(self._buf) == 30:
+					if self._cur == 30:
+						self._cur = 0
+						self._buf[self._cur] = self._buf[29]
+						self._cur += 1
+					else:
+						self._buf[self._cur] = self._buf[self._cur - 1]
+						self._cur += 1
+				elif len(self._buf) != 0:
+					self._buf.append(self._buf[self._cur - 1])
+					self._cur += 1
+				
+				top[0].data[...] = np.array([[0,0,0,128,128],])
+				top[1].data[...] = np.array([[[[0]]]])
 
 	def reshape(self, bottom, top):
 		pass
