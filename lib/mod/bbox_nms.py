@@ -9,6 +9,7 @@ class BboxNMSLayer(caffe.Layer):
 	def setup(self, bottom, top):
 		self._buf = []
 		self._cur = 0
+		self._old_event = 1
 		top[0].reshape(1,5)
 		top[1].reshape(1)
 
@@ -52,13 +53,26 @@ class BboxNMSLayer(caffe.Layer):
 
 		if boxes_nms.shape[0] == 0:
 			top[0].data[...] = np.array([[0,0,0,128,128],])
-			top[1].data[...] = np.array([0])
+			top[1].data[...] = np.array([[[[0]]]])
+			# print "top[0].shape: ", top[0].shape
+			# print "top[0].data: ", top[0].data
+			print "bbox nms forward done"
+			pass
 		if init_tag:
-			self._buf.append(boxes_nms_xyxy)
+			if not self._old_event:
+				self._cur = 0
+				self._old_event = 1
+			if len(self._buf) == 30:
+				self._buf[self._cur] = boxes_nms_xyxy
+			else:
+				self._buf.append(boxes_nms_xyxy)
 			self._cur +=1
 			top[0].data[...] = np.array([[0,0,0,128,128],])
-			top[1].data[...] = np.array([0])
+			top[1].data[...] = np.array([[[[0]]]])
+			# print "top[0].shape: ", top[0].shape
+			# print "top[0].data: ", top[0].data
 		else:
+			self._old_event = 0
 			for i in reversed(xrange(self._cur)):
 				boxes_nms_xyxy = comp_bbox(boxes_nms_xyxy, self._buf[i])
 			for i in range(29,self._cur-1,-1):
@@ -76,16 +90,20 @@ class BboxNMSLayer(caffe.Layer):
 			boxes_nms_xyxy = np.insert(boxes_nms_xyxy,0,0,axis=1)
 
 			top[0].reshape(len(boxes_nms_xyxy),5)
-			top[1].reshape(len(boxes_nms_xyxy))
+			top[1].reshape(len(boxes_nms_xyxy),1,1,1)
 			# print "boxes_xyxy: ", boxes_nms_xyxy
 
 			top[0].data[...] = boxes_nms_xyxy
-			top[1].data[...] = np.full((len(boxes_nms_xyxy)), labels)
+			top[1].data[...] = np.full((len(boxes_nms_xyxy),1,1,1), labels)
 			# print "labels: ", labels
+			# print "top[0].shape: ", top[0].shape
+			# print "top[0].data: ", top[0].data
+		print "bbox nms forward done"
 
 	def reshape(self, bottom, top):
 		pass
 
-	def backward(self, bottom, top):
+	def backward(self, top, propagate_down, bottom):
+		# print top[0]._diff
 		pass
 

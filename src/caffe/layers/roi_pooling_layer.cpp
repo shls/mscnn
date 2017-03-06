@@ -31,6 +31,7 @@ void ROIPoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   spatial_scale_ = roi_pool_param.spatial_scale();
   pad_ratio_ = roi_pool_param.pad_ratio();
   LOG(INFO) << "Spatial scale: " << spatial_scale_;
+  LOG(INFO) << "Pad scale: " << pad_ratio_;
 }
 
 template <typename Dtype>
@@ -43,6 +44,9 @@ void ROIPoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       pooled_width_);
   max_idx_.Reshape(bottom[1]->num(), channels_, pooled_height_,
       pooled_width_);
+  // LOG_IF(INFO, channels_==4) << "Reshape INFO Channels_ " << channels_;
+  // LOG_IF(INFO, channels_==4) << "Reshape INFO Height_ " << height_;
+  // LOG_IF(INFO, channels_==4) << "Reshape INFO Width_ " << width_;
 }
 
 template <typename Dtype>
@@ -58,6 +62,11 @@ void ROIPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   caffe_set(top_count, Dtype(-FLT_MAX), top_data);
   int* argmax_data = max_idx_.mutable_cpu_data();
   caffe_set(top_count, -1, argmax_data);
+
+  // LOG_IF(INFO, num_rois==1) << "ROI Forward Begin ";
+  // LOG_IF(INFO, num_rois==1) << "FORWARD INFO num_rois " << num_rois;
+  // LOG_IF(INFO, num_rois==1) << "FORWARD INFO batch_size " << batch_size;
+  // LOG_IF(INFO, num_rois==1) << "FORWARD INFO top_count " << top_count;
 
   // For each ROI R = [batch_index x1 y1 x2 y2]: max pool over R
   for (int n = 0; n < num_rois; ++n) {
@@ -136,6 +145,7 @@ void ROIPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     // Increment ROI data pointer
     bottom_rois += bottom[1]->offset(1);
   }
+  // LOG_IF(INFO, num_rois==1) << "roi output" << *top_data;
 }
 
 template <typename Dtype>

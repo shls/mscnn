@@ -59,11 +59,14 @@ template <typename Dtype>
 __global__ void kernel_channel_div(const int count,
     const int num, const int channels,
     const int spatial_dim, const Dtype* channel_sum, Dtype* data) {
+  printf("Softmax output begins: \n");
   CUDA_KERNEL_LOOP(index, count) {
     int n = index / channels / spatial_dim;
     int s = index % spatial_dim;
     data[index] /= channel_sum[n * spatial_dim + s];
+    printf("%f ", data[index]); 
   }
+  printf("softmax output end \n");
 }
 
 template <typename Dtype>
@@ -90,6 +93,12 @@ void SoftmaxLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   Dtype* scale_data = scale_.mutable_gpu_data();
   int count = bottom[0]->count();
   int channels = top[0]->shape(softmax_axis_);
+  printf("Softmax input begin: \n");
+  for (int c=0; c < channels; c++){
+  	printf()
+  }
+   printf("\n Softmax input end \n");
+  
   caffe_copy(count, bottom_data, top_data);
   // We need to subtract the max to avoid numerical issues, compute the exp,
   // and then normalize.

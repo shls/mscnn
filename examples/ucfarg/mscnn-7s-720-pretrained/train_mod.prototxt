@@ -1105,3 +1105,12 @@ layer {
   bottom: "label_reshape"
   top: "loss"
 }
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "mod_fc8_ucf"
+  bottom: "label_reshape"
+  top: "accuracy"
+}
+
+

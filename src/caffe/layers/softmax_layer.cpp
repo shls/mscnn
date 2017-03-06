@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <vector>
+#include <iostream>
 
 #include "caffe/layers/softmax_layer.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -34,6 +35,7 @@ void SoftmaxLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   caffe_copy(bottom[0]->count(), bottom_data, top_data);
   // We need to subtract the max to avoid numerical issues, compute the exp,
   // and then normalize.
+  std::cout<<"softmax input: \n";
   for (int i = 0; i < outer_num_; ++i) {
     // initialize scale_data to the first plane
     caffe_copy(inner_num_, bottom_data + i * dim, scale_data);
@@ -41,6 +43,7 @@ void SoftmaxLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       for (int k = 0; k < inner_num_; k++) {
         scale_data[k] = std::max(scale_data[k],
             bottom_data[i * dim + j * inner_num_ + k]);
+        std::cout<<bottom_data[i * dim + j * inner_num_ + k]<<" ";
       }
     }
     // subtraction
@@ -57,6 +60,7 @@ void SoftmaxLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       top_data += inner_num_;
     }
   }
+  std::cout<<std::endl;
 }
 
 template <typename Dtype>

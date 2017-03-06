@@ -39,7 +39,7 @@ __C.VAL.MEAN_3 = [104, 117, 123]
 __C.VAL.MEAN_4 = [115, 115, 115, 115]
 
 
-__C.GPU_ID = 0
+__C.GPU_ID = 1
 
 __C.category = 2
 __C.two_category = ('__background__', 'potential_event')

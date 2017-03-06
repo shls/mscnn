@@ -1,8 +1,3 @@
-import sys
-caffe_root = '/home/ls/mscnn/'
-sys.path.insert(0, caffe_root + "install/python")
-sys.path.insert(0, caffe_root + "lib")
-
 import numpy as np
 import os
 import cv2
