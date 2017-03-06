@@ -46,7 +46,7 @@ class BboxNMSLayer(caffe.Layer):
 		boxes_nms[:,1] -= boxes_nms[:,3]/4
 		boxes_nms[:,3] *= 1.5
 
-		boxes_nms_xyxy = boxes_nms
+		boxes_nms_xyxy = boxes_nms[:]
 		boxes_cache = np.zeros((boxes_nms.shape))
 		boxes_cache[:,2:] = boxes_nms[:, 0:2]
 		boxes_nms_xyxy += boxes_cache
@@ -75,10 +75,10 @@ class BboxNMSLayer(caffe.Layer):
 
 					if self._cur == 30:
 						self._cur = 0
-						self._buf[self._cur] = boxes_nms_xyxy
+						self._buf[self._cur] = boxes_nms_xyxy[:]
 						self._cur += 1
 					else:
-						self._buf[self._cur] = boxes_nms_xyxy
+						self._buf[self._cur] = boxes_nms_xyxy[:]
 						self._cur += 1
 
 					#Compensate for batch index
@@ -87,17 +87,17 @@ class BboxNMSLayer(caffe.Layer):
 					top[0].reshape(len(boxes_nms_xyxy),5)
 					top[1].reshape(len(boxes_nms_xyxy),1,1,1)
 
-					top[0].data[...] = boxes_nms_xyxy
+					top[0].data[...] = boxes_nms_xyxy[:]
 					top[1].data[...] = np.full((len(boxes_nms_xyxy),1,1,1), labels)
 
 			else:
 				if len(self._buf) == 30:
 					if self._cur == 30:
 						self._cur = 0
-						self._buf[self._cur] = self._buf[29]
+						self._buf[self._cur] = self._buf[29][:]
 						self._cur += 1
 					else:
-						self._buf[self._cur] = self._buf[self._cur - 1]
+						self._buf[self._cur] = self._buf[self._cur - 1][:]
 						self._cur += 1
 				elif len(self._buf) != 0:
 					self._buf.append(self._buf[self._cur - 1])
