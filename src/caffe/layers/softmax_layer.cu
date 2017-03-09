@@ -18,6 +18,7 @@ __global__ void kernel_channel_max(const int num, const int channels,
     Dtype maxval = -FLT_MAX;
     for (int c = 0; c < channels; ++c) {
       maxval = max(data[(n * channels + c) * spatial_dim + s], maxval);
+      // printf("%d ", (n * channels + c) * spatial_dim + s);
     }
     out[index] = maxval;
   }
@@ -59,14 +60,12 @@ template <typename Dtype>
 __global__ void kernel_channel_div(const int count,
     const int num, const int channels,
     const int spatial_dim, const Dtype* channel_sum, Dtype* data) {
-  printf("Softmax output begins: \n");
   CUDA_KERNEL_LOOP(index, count) {
     int n = index / channels / spatial_dim;
     int s = index % spatial_dim;
     data[index] /= channel_sum[n * spatial_dim + s];
-    printf("%f ", data[index]); 
+    // printf("%d ", index);
   }
-  printf("softmax output end \n");
 }
 
 template <typename Dtype>
@@ -93,11 +92,11 @@ void SoftmaxLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   Dtype* scale_data = scale_.mutable_gpu_data();
   int count = bottom[0]->count();
   int channels = top[0]->shape(softmax_axis_);
-  printf("Softmax input begin: \n");
-  for (int c=0; c < channels; c++){
-  	printf()
-  }
-   printf("\n Softmax input end \n");
+  //printf("Softmax input begin: \n");
+  //for (int c=0; c < channels; c++){
+    //printf("%f ", bottom_data[c]);
+  //}
+  //printf("\n Softmax input end \n");
   
   caffe_copy(count, bottom_data, top_data);
   // We need to subtract the max to avoid numerical issues, compute the exp,
@@ -126,6 +125,11 @@ void SoftmaxLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   kernel_channel_div<Dtype><<<CAFFE_GET_BLOCKS(count),
       CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_,
       scale_data, top_data);
+  //printf("Softmax output begin: \n");
+  //for (int c=0; c < channels; c++){
+    //printf("%f ", top_data[c]);
+  //}
+   //printf("\n Softmax output end \n");
 }
 
 template <typename Dtype>
