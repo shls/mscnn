@@ -16,49 +16,49 @@ class ModDataLayer(caffe.Layer):
 	# If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
 	# separate process and made available through self._blob_queue.
 	# """
-		if self._cur == len(self._indexlist):
-			self._cur = 0
+	blob_spatial_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, spatial_im.shape[0], spatial_im.shape[1], spatial_im.shape[2]), dtype=np.float32)
+	blob_mix_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, mix_im.shape[0], mix_im.shape[1], mix_im.shape[2]), dtype=np.float32)
+	label_blob = np.zeros((0), dtype=np.float32)
+	init_tag_blob = np.zeros((0), dtype=np.float32)
 
-		index = self._indexlist[self._cur]
-		mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index + ucfarg_cfg.TRAIN.DATA_EXTENSION)))
+		for batch_index in xrange(ucfarg_cfg.TRAIN.IMS_PER_BATCH):
 
-		spatial_im = np.asarray(mix_im[:, :, 0:-1])
-		spatial_im = cv2.resize(spatial_im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
-		spatial_im -= ucfarg_cfg.TRAIN.MEAN_3
-		spatial_im = spatial_im.transpose((2,0,1))
+			if self._cur == len(self._indexlist):
+				self._cur = 0
 
-		blob_spatial_im = np.zeros((1, spatial_im.shape[0], spatial_im.shape[1], spatial_im.shape[2]), dtype=np.float32)
-		blob_spatial_im[0, :, :, :] = spatial_im
+			index = self._indexlist[self._cur]
+			mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index + ucfarg_cfg.TRAIN.DATA_EXTENSION)))
 
-		mix_im = mix_im.astype(np.float32)
-		mix_im -= ucfarg_cfg.TRAIN.MEAN_4
-		mix_im = mix_im.transpose((2,0,1))
+			spatial_im = np.asarray(mix_im[:, :, 0:-1])
+			spatial_im = cv2.resize(spatial_im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
+			spatial_im -= ucfarg_cfg.TRAIN.MEAN_3
+			spatial_im = spatial_im.transpose((2,0,1))
+			blob_spatial_im[0, :, :, :] = spatial_im
 
-		blob_mix_im = np.zeros((1, mix_im.shape[0], mix_im.shape[1], mix_im.shape[2]), dtype=np.float32)
-		blob_mix_im[0, :, :, :] = mix_im
+			mix_im = mix_im.astype(np.float32)
+			mix_im -= ucfarg_cfg.TRAIN.MEAN_4
+			mix_im = mix_im.transpose((2,0,1))
+			blob_mix_im[0, :, :, :] = mix_im
 
-		if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
-			print "image shape mismatch by Ls"
-			raise
+			if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
+				print "image shape mismatch by Ls"
+				raise
 
-		label_file = os.path.join(ucfarg_cfg.TRAIN.LABEL_ROOT, index + ucfarg_cfg.TRAIN.LABEL_EXTENSION)
-		assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
+			label_file = os.path.join(ucfarg_cfg.TRAIN.LABEL_ROOT, index + ucfarg_cfg.TRAIN.LABEL_EXTENSION)
+			assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
 
-		with open(label_file) as f:
-			label_data = f.readline()
+			with open(label_file) as f:
+				label_data = f.readline()
 
-		label = int(label_data.split()[0])
-		init_tag = int(label_data.split()[1])
+			label = int(label_data.split()[0])
+			init_tag = int(label_data.split()[1])
 
-		label_blob = np.zeros((0), dtype=np.float32)
-		init_tag_blob = np.zeros((0), dtype=np.float32)
+			label_blob = np.hstack((label_blob, label))
+			init_tag_blob = np.hstack((init_tag_blob, init_tag))
 
-		label_blob = np.hstack((label_blob, label))
-		init_tag_blob = np.hstack((init_tag_blob, init_tag))
-
-		blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
+			self._cur += 1
 		
-		self._cur += 1
+		blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
 		return blobs
 
 	def setup(self, bottom, top):

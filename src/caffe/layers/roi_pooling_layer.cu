@@ -96,6 +96,37 @@ void ROIPoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   Dtype* top_data = top[0]->mutable_gpu_data();
   int* argmax_data = max_idx_.mutable_gpu_data();
   int count = top[0]->count();
+
+  //add batch index output
+  const Dtype* bottom_rois_index = bottom[1]->gpu_data();
+  Dtype* top_rois_index = top[1]->mutable_gpu_data();
+  int num_rois = bottom[1]->num();
+  int last_rois_index = -1, cur_rois_index = -1, num_cur_roi = 0, cur_top_index = 0 num_total_rois = 0;
+  
+  for(int i=0; i<num_rois; i++){
+    cur_rois_index = bottom_rois_index[0]
+    if (last_rois_index == -1)
+    {
+      last_rois_index = cur_rois_index;
+      num_cur_roi++;
+      cur_top_index = 0;
+    }
+    else if (last_rois_index == cur_rois_index)
+    {
+      num_cur_roi++;
+    }
+    else if (last_rois_index != cur_rois_index)
+    {
+      top_rois_index[cur_top_index] = num_cur_roi;
+      num_total_rois = num_total_rois + num_cur_roi;
+      num_cur_roi = 1;
+      cur_top_index++;
+      last_rois_index = cur_rois_index;
+    }
+    bottom_rois_index += bottom[1]->offset(1);
+  }
+  CHECK_EQ(num_total_rois, num_rois);
+
   // NOLINT_NEXT_LINE(whitespace/operators)
   ROIPoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
       count, bottom_data, spatial_scale_, channels_, height_, width_,

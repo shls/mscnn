@@ -42,6 +42,7 @@ void ROIPoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   width_ = bottom[0]->width();
   top[0]->Reshape(bottom[1]->num(), channels_, pooled_height_,
       pooled_width_);
+  top[1]->Reshape(bottom[1]->num());
   max_idx_.Reshape(bottom[1]->num(), channels_, pooled_height_,
       pooled_width_);
   // LOG_IF(INFO, channels_==4) << "Reshape INFO Channels_ " << channels_;
@@ -59,6 +60,7 @@ void ROIPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   int batch_size = bottom[0]->num();
   int top_count = top[0]->count();
   Dtype* top_data = top[0]->mutable_cpu_data();
+  Dtype* top_rois_index = top[1]->mutable_cpu_data();
   caffe_set(top_count, Dtype(-FLT_MAX), top_data);
   int* argmax_data = max_idx_.mutable_cpu_data();
   caffe_set(top_count, -1, argmax_data);
@@ -68,12 +70,35 @@ void ROIPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   // LOG_IF(INFO, num_rois==1) << "FORWARD INFO batch_size " << batch_size;
   // LOG_IF(INFO, num_rois==1) << "FORWARD INFO top_count " << top_count;
 
+  int last_rois_index = -1, cur_rois_index = -1, num_cur_roi = 0, cur_top_index = 0, num_total_rois = 0;
+
   // For each ROI R = [batch_index x1 y1 x2 y2]: max pool over R
   for (int n = 0; n < num_rois; ++n) {
     int roi_batch_ind = bottom_rois[0];
     CHECK_GE(roi_batch_ind, 0);
     CHECK_LT(roi_batch_ind, batch_size);
-    
+
+    //ouput the batch index to top 1
+    cur_rois_index = roi_batch_ind;
+    if (last_rois_index==-1)
+    {
+      last_rois_index = cur_rois_index;
+      num_cur_roi++;
+      cur_top_index = 0;
+    }
+    else if (last_rois_index==cur_rois_index)
+    {
+      num_cur_roi++;
+    }
+    else if (last_rois_index!=cur_rois_index)
+    {
+      top_rois_index[cur_top_index] = num_cur_roi;
+      num_total_rois = num_total_rois + num_cur_roi;
+      num_cur_roi = 1;
+      last_rois_index = cur_rois_index;
+      cur_top_index++;
+    }
+
     // padding
     Dtype pad_w, pad_h;
     pad_w = (bottom_rois[3]-bottom_rois[1]+1)*pad_ratio_;
@@ -145,6 +170,7 @@ void ROIPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     // Increment ROI data pointer
     bottom_rois += bottom[1]->offset(1);
   }
+  CHECK_EQ(num_total_rois, num_rois);
   // LOG_IF(INFO, num_rois==1) << "roi output" << *top_data;
 }
 
