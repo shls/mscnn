@@ -101,10 +101,10 @@ void ROIPoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   const Dtype* bottom_rois_index = bottom[1]->gpu_data();
   Dtype* top_rois_index = top[1]->mutable_gpu_data();
   int num_rois = bottom[1]->num();
-  int last_rois_index = -1, cur_rois_index = -1, num_cur_roi = 0, cur_top_index = 0 num_total_rois = 0;
+  int last_rois_index = -1, cur_rois_index = -1, num_cur_roi = 0, cur_top_index = 0, num_total_rois = 0;
   
   for(int i=0; i<num_rois; i++){
-    cur_rois_index = bottom_rois_index[0]
+    cur_rois_index = bottom_rois_index[0];
     if (last_rois_index == -1)
     {
       last_rois_index = cur_rois_index;

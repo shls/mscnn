@@ -42,7 +42,7 @@ void ROIPoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   width_ = bottom[0]->width();
   top[0]->Reshape(bottom[1]->num(), channels_, pooled_height_,
       pooled_width_);
-  top[1]->Reshape(bottom[1]->num());
+  top[1]->Reshape(bottom[1]->num(),1,1,1);
   max_idx_.Reshape(bottom[1]->num(), channels_, pooled_height_,
       pooled_width_);
   // LOG_IF(INFO, channels_==4) << "Reshape INFO Channels_ " << channels_;
