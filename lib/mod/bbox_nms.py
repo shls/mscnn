@@ -15,12 +15,12 @@ class BboxNMSLayer(caffe.Layer):
 
 	def forward(self, bottom, top):
 
-		batch_bbox_pred = bottom[0].data
+		bbox_preds = bottom[0].data
 		proposals = bottom[1].data.reshape((-1,6))[:,1:]
 		proposals[:,2] -= proposals[:,0]
 		proposals[:,3] -= proposals[:,1]
-		batch_cls_pred = bottom[2].data
-		batch_num_rois = bottom[3].data
+		cls_preds = bottom[2].data
+		num_rois = bottom[3].data
 		event_indexs = bottom[4].data
 		labels = bottom[5].data
 
@@ -33,16 +33,16 @@ class BboxNMSLayer(caffe.Layer):
 			
 			if batch_index == 0:
 				batch_start = 0
-				batch_end = batch_num_rois[0]
+				batch_end = num_rois[0]
 			else:
-				batch_start = sum(batch_num_rois[0:batch_index])
-				batch_end = sum(batch_num_rois[0:batch_index+1])
+				batch_start = sum(num_rois[0:batch_index])
+				batch_end = sum(num_rois[0:batch_index+1])
 
 			batch_proposals = proposals[batch_start:batch_end,]
 
 			batch_keeps = filter_proposals(batch_proposals)
-			batch_bbox_pred =  batch_bbox_pred[batch_keeps]
-			batch_cls_pred = batch_cls_pred[batch_keeps]
+			batch_bbox_pred =  bbox_preds[batch_keeps]
+			batch_cls_pred = cls_preds[batch_keeps]
 			batch_proposals = batch_proposals[batch_keeps]
 
 			batch_pedestrian_boxes = batch_bbox_pred[:,4:8]
