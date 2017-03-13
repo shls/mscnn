@@ -16,10 +16,11 @@ class ModDataLayer(caffe.Layer):
 	# If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
 	# separate process and made available through self._blob_queue.
 	# """
-	blob_spatial_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, spatial_im.shape[0], spatial_im.shape[1], spatial_im.shape[2]), dtype=np.float32)
-	blob_mix_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, mix_im.shape[0], mix_im.shape[1], mix_im.shape[2]), dtype=np.float32)
-	label_blob = np.zeros((0), dtype=np.float32)
-	init_tag_blob = np.zeros((0), dtype=np.float32)
+
+		blob_spatial_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.SPATIAL_CHANNELS, ucfarg_cfg.TRAIN.TARGET_H, ucfarg_cfg.TRAIN.TARGET_W), dtype=np.float32)
+		blob_mix_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.MIX_CHANNELS, ucfarg_cfg.TRAIN.ORG_H, ucfarg_cfg.TRAIN.ORG_W), dtype=np.float32)
+		label_blob = np.zeros((0), dtype=np.float32)
+		init_tag_blob = np.zeros((0), dtype=np.float32)
 
 		for batch_index in xrange(ucfarg_cfg.TRAIN.IMS_PER_BATCH):
 
@@ -33,12 +34,12 @@ class ModDataLayer(caffe.Layer):
 			spatial_im = cv2.resize(spatial_im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
 			spatial_im -= ucfarg_cfg.TRAIN.MEAN_3
 			spatial_im = spatial_im.transpose((2,0,1))
-			blob_spatial_im[0, :, :, :] = spatial_im
+			blob_spatial_im[batch_index, :, :, :] = spatial_im
 
 			mix_im = mix_im.astype(np.float32)
 			mix_im -= ucfarg_cfg.TRAIN.MEAN_4
 			mix_im = mix_im.transpose((2,0,1))
-			blob_mix_im[0, :, :, :] = mix_im
+			blob_mix_im[batch_index, :, :, :] = mix_im
 
 			if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
 				print "image shape mismatch by Ls"
