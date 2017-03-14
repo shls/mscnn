@@ -31,7 +31,9 @@ class BboxNMSLayer(caffe.Layer):
 		# turn img index in batch to number of proposals per img
 		imgs, num_rois_per_img = np.unique(img_index_in_batch, return_counts=True)
 
-		CHECK_GE(len(num_rois_per_img),len(img_index))
+		if len(num_rois_per_img) != len(img_index):
+			print "shape mismatch,raised by Ls"
+  			raise
 
 		for imgindex_in_batch in xrange(len(num_rois_per_img)):
 
@@ -45,10 +47,13 @@ class BboxNMSLayer(caffe.Layer):
 				batch_end = sum(num_rois_per_img[0:imgindex_in_batch+1])
 
 			batch_proposals = proposals[batch_start:batch_end,]
+			batch_bbox_pred = bbox_preds[batch_start:batch_end,]
+			batch_cls_pred = cls_preds[batch_start:batch_end,]
 
 			batch_keeps = filter_proposals(batch_proposals)
-			batch_bbox_pred =  bbox_preds[batch_keeps]
-			batch_cls_pred = cls_preds[batch_keeps]
+
+			batch_bbox_pred =  batch_bbox_pred[batch_keeps]
+			batch_cls_pred = batch_cls_pred[batch_keeps]
 			batch_proposals = batch_proposals[batch_keeps]
 
 			batch_pedestrian_boxes = batch_bbox_pred[:,4:8]
