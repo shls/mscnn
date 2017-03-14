@@ -650,7 +650,6 @@ layer {
   bottom: "conv4_3"
   bottom: "proposals"
   top: "roi_pool_org"
-  top: "roi_batch_index_org"
   roi_pooling_param {
     pooled_w: 4
     pooled_h: 8
@@ -664,7 +663,6 @@ layer {
   bottom: "conv4_3"
   bottom: "proposals"
   top: "roi_pool_ctx"
-  top: "roi_batch_index_ctx"
   roi_pooling_param {
     pooled_w: 4
     pooled_h: 8
@@ -751,7 +749,6 @@ layer {
   bottom: "bbox_pred"
   bottom: 'proposals_score'
   bottom: "cls_pred"
-  bottom: "roi_batch_index_org"
   bottom: "event_index"
   bottom: "label"
   top: "bbox_nms"
@@ -767,7 +764,6 @@ layer {
   bottom: "mix_data"
   bottom: "bbox_nms"
   top: "roi_pool_bbox"
-  top: "roi_batch_index_bbox"
   roi_pooling_param {
     pooled_w: 128
     pooled_h: 128
