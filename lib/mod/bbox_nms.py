@@ -90,15 +90,15 @@ class BboxNMSLayer(caffe.Layer):
 					blob_rois[0,:] = np.array([imgindex_in_batch,0,0,128,128])
 					blob_label[0,0,0,0] = 0
 				else:
-					blob_rois = np.concatenate(blob_rois, np.array([[imgindex_in_batch,0,0,128,128],]))
-					blob_label = np.concatenate(blob_label,np.array([[[[0]]]]))
+					blob_rois = np.concatenate((blob_rois, np.array([[imgindex_in_batch,0,0,128,128],])))
+					blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 			else:
 				if boxes_nms_xyxy.shape[0] != 0:
 					if len(self._buf) != 30:
 						self._buf.append(boxes_nms_xyxy)
 						self._cur += 1
-						blob_rois = np.concatenate(blob_rois, np.array([[imgindex_in_batch,0,0,128,128],]))
-						blob_label = np.concatenate(blob_label,np.array([[[[0]]]]))
+						blob_rois = np.concatenate((blob_rois, np.array([[imgindex_in_batch,0,0,128,128],])))
+						blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 					else:
 						for i in reversed(xrange(self._cur)):
 							boxes_nms_xyxy = comp_bbox(boxes_nms_xyxy, self._buf[i])
@@ -116,8 +116,8 @@ class BboxNMSLayer(caffe.Layer):
 						#Compensate for batch index
 						boxes_nms_xyxy = np.insert(boxes_nms_xyxy,0,imgindex_in_batch,axis=1)
 						
-						blob_rois = np.concatenate(blob_rois, boxes_nms_xyxy)
-						blob_label = np.concatenate(blob_label, np.full((len(boxes_nms_xyxy),1,1,1), labels[imgindex_in_batch]))
+						blob_rois = np.concatenate((blob_rois, boxes_nms_xyxy))
+						blob_label = np.concatenate((blob_label, np.full((len(boxes_nms_xyxy),1,1,1), labels[imgindex_in_batch])))
 
 				else:
 					if len(self._buf) == 30:
@@ -132,8 +132,8 @@ class BboxNMSLayer(caffe.Layer):
 						self._buf.append(self._buf[self._cur - 1])
 						self._cur += 1
 					
-					blob_rois = np.concatenate(blob_rois, np.array([[imgindex_in_batch,0,0,128,128],]))
-					blob_label = np.concatenate(blob_label,np.array([[[[0]]]]))
+					blob_rois = np.concatenate((blob_rois, np.array([[imgindex_in_batch,0,0,128,128],])))
+					blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 	
 		top[0].reshape(len(blob_rois),5)
 		top[1].reshape(len(blob_label),1,1,1)

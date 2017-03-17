@@ -162,7 +162,7 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
       }
     }
     
-    DLOG(INFO) << "The number of boxes before NMS: " << boxes.size();
+    //DLOG(INFO) << "The number of boxes before NMS: " << boxes.size();
     if (boxes.size()<=0) continue;
     //ranking decreasingly
     std::sort(score_idx_vector.begin(),score_idx_vector.end(),std::greater<std::pair<Dtype, int> >());
@@ -189,7 +189,7 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
     }
     num_batch_boxes += num_new_boxes;
   }
-  
+  // DLOG(INFO) << "The number of batch boexs: " << num_batch_boxes;
   CHECK_EQ(num_batch_boxes,batch_boxes.size());
   // output rois [batch_idx x1 y1 x2 y2] for roi_pooling layer
   if (num_batch_boxes <= 0) {
@@ -201,6 +201,7 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
     top[0]->Reshape(num_batch_boxes, 5, 1, 1);
     Dtype* top_boxes = top[0]->mutable_cpu_data();
     for (int i = 0; i < num_batch_boxes; i++) {
+      // DLOG(INFO) << "batch index per box: " << batch_boxes[i][0];
       CHECK_EQ(batch_boxes[i].size(),6);
       top_boxes[i*5] = batch_boxes[i][0];
       top_boxes[i*5+1] = batch_boxes[i][1];

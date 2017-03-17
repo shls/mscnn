@@ -12,7 +12,7 @@ ucfarg_cfg = __C
 
 __C.TRAIN = edict()
 
-__C.TRAIN.IMS_PER_BATCH = 10
+__C.TRAIN.IMS_PER_BATCH = 4
 __C.TRAIN.SPATIAL_CHANNELS = 3
 __C.TRAIN.MIX_CHANNELS = 4
 __C.TRAIN.LIST_FILE = "/home/ls/dataset/mscnn/data/random_train.list"
