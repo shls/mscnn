@@ -10,6 +10,24 @@ layer {
     module: 'mod.mod_data'
     layer: 'ModDataLayer'
   }
+  include {
+    phase: TRAIN
+  }
+}
+layer {
+  name: 'input-data'
+  type: 'Python'
+  top: 'spatial_data'
+  top: 'mix_data'
+  top: 'label'
+  top: 'event_index'
+  python_param {
+    module: 'mod.mod_data'
+    layer: 'ModDataLayer'
+  }
+  include {
+    phase: TEST
+  }
 }
 layer {
   bottom: "spatial_data"
@@ -1111,6 +1129,9 @@ layer {
   bottom: "mod_fc8_ucf"
   bottom: "label_reshape"
   top: "accuracy"
+  include {
+    phase: TEST
+  }
 }
 
 

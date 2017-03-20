@@ -12,10 +12,10 @@ ucfarg_cfg = __C
 
 __C.TRAIN = edict()
 
-__C.TRAIN.IMS_PER_BATCH = 4
+__C.TRAIN.IMS_PER_BATCH = 2
 __C.TRAIN.SPATIAL_CHANNELS = 3
 __C.TRAIN.MIX_CHANNELS = 4
-__C.TRAIN.LIST_FILE = "/home/ls/dataset/mscnn/data/random_train.list"
+__C.TRAIN.LIST_FILE = "/home/ls/dataset/mscnn/data/random_trainval.list"
 __C.TRAIN.DATA_EXTENSION = '.npy'
 __C.TRAIN.LABEL_EXTENSION = '.txt'
 __C.TRAIN.DATA_ROOT = '/home/ls/dataset/mscnn/data'
@@ -40,6 +40,26 @@ __C.VAL.MEAN_4 = [115, 115, 115, 115]
 
 
 __C.GPU_ID = 0
+
+
+__C.TEST.IMS_PER_BATCH = 2
+__C.TEST.SPATIAL_CHANNELS = 3
+__C.TEST.MIX_CHANNELS = 4
+__C.TEST.LIST_FILE = "/home/ls/dataset/mscnn/data/random_test.list"
+__C.TEST.DATA_EXTENSION = '.npy'
+__C.TEST.LABEL_EXTENSION = '.txt'
+__C.TEST.DATA_ROOT = '/home/ls/dataset/mscnn/data'
+__C.TEST.LABEL_ROOT = '/home/ls/dataset/mscnn/annotations'
+__C.TEST.ORG_W = 960
+__C.TEST.ORG_H = 540
+__C.TEST.TARGET_W = 960
+__C.TEST.TARGET_H = 720
+__C.TEST.RATIOS = (1, 0.75)
+__C.TEST.MEAN_3 = [104, 117, 123]
+__C.TEST.MEAN_4 = [115, 115, 115, 115]
+__C.TEST.NMS_THRESH = 0.3
+__C.TEST.NMS_CONFI_THRESH = 0.9
+
 
 __C.category = 2
 __C.two_category = ('__background__', 'potential_event')
