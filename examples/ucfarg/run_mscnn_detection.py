@@ -198,8 +198,12 @@ def nms(dets, thresh):
 def video_prediction(net, video_name, thresh):
     vidcap = cv2.VideoCapture(video_name)
     success,im = vidcap.read()
+    print video_name
+    index = 0
     while success:
     	visual_output(net, im, thresh)
+	print index
+	index += 1 
         success,im = vidcap.read()
 
 def image_prediction(net, imagename, thresh):
@@ -222,6 +226,7 @@ def visual_output(net, im, thresh):
             width = bbox[2]
             height  = bbox[3]
             im_bbox = im
+            print "%s %s %s %s" %(x, y, x+width, y+width)
             #cv2.rectangle(im_bbox, (x,y), (x+width, y+height), (0,255,0),2)
             #cv2.imshow('detections', im_bbox)
             #cv2.waitKey(1)
