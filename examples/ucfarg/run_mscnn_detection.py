@@ -78,6 +78,7 @@ def parse_args():
     parser.add_argument('--folder', dest='root_folder', help='root folder for recursively test', default='', type=str)
     parser.add_argument('--filetype', dest='filetype', help='file type(video/img)', default='img',type=str)
 
+
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
@@ -201,14 +202,47 @@ def video_prediction(net, video_name, thresh):
     print video_name
     index = 0
     while success:
-    	visual_output(net, im, thresh)
-	print index
-	index += 1 
+    	
+        print index
+        index += 1 
+        filename = os.path.splitext(os.path.basename(a))[0]
+        folder = os.join("/home/ls/dataset/videos", filename)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        savepath =os.join(folder, filename, ".", str(index).zfill(4), ".txt") 
+        print savepath
+        # visual_output(net, im, thresh)
+        bbox2file(net, im, thresh, savepath)
         success,im = vidcap.read()
 
 def image_prediction(net, imagename, thresh):
     im = cv2.imread(imagename)
     visual_output(net, im, thresh)
+
+
+def bbox2file(net, im, thresh, savepath):
+    confidence, bboxes = im_detect(net, im)
+    dets = np.hstack((bboxes,confidence[:, np.newaxis])).astype(np.float32)
+    keep = nms(dets, 0.3)
+    dets_nms = dets[keep, :]
+    inds = np.where(dets_nms[:, -1] >= thresh)[0]
+    file = open(savepath,"w")
+    for i in inds:
+        bbox = dets_nms[i, :4]
+        score = dets_nms[i, -1]
+        if score >=thresh:
+            x = bbox[0]
+            y = bbox[1]
+            width = bbox[2]
+            height  = bbox[3]
+            line = "%s %s %s %s" %(x, y, x+width, y+width)
+            print line
+            file.write(line)
+        else:
+            print "No object detected"
+            line = ""
+            print line
+            file.write(line)
 
 
 def visual_output(net, im, thresh):
