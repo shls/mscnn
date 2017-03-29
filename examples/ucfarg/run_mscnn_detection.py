@@ -201,16 +201,14 @@ def video_prediction(net, video_name, thresh):
     success,im = vidcap.read()
     print video_name
     index = 0
-    while success:
-    	
-        print index
-        index += 1 
-        filename = os.path.splitext(os.path.basename(a))[0]
-        folder = os.join("/home/ls/dataset/videos", filename)
+    while success: 
+        filename = os.path.splitext(os.path.basename(video_name))[0]
+        folder = os.path.join("/home/ls/dataset/fe/", filename)
         if not os.path.exists(folder):
             os.makedirs(folder)
-        savepath =os.join(folder, filename, ".", str(index).zfill(4), ".txt") 
-        print savepath
+        savepath =folder + "/" + filename + "." + str(index).zfill(4) + ".txt" 
+        # print savepath
+	index += 1
         # visual_output(net, im, thresh)
         bbox2file(net, im, thresh, savepath)
         success,im = vidcap.read()
@@ -236,14 +234,14 @@ def bbox2file(net, im, thresh, savepath):
             width = bbox[2]
             height  = bbox[3]
             line = "%s %s %s %s" %(x, y, x+width, y+width)
-            print line
+            #print line
             file.write(line)
         else:
             print "No object detected"
             line = ""
-            print line
+            #print line
             file.write(line)
-
+    file.close()
 
 def visual_output(net, im, thresh):
     confidence, bboxes = im_detect(net, im)
