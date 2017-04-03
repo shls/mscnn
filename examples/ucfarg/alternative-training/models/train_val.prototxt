@@ -1,4 +1,4 @@
-name: "CaffeNet"
+name: "MOD_CaffeNet"
 layer {
   name: 'input-data'
   type: 'Python'
@@ -346,7 +346,7 @@ layer {
   name: "mod_fc8"
   type: "InnerProduct"
   bottom: "fc7"
-  top: "fc8"
+  top: "mod_fc8"
   param {
     lr_mult: 1
     decay_mult: 1
