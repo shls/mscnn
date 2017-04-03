@@ -28,6 +28,7 @@ class BboxNMSLayer(caffe.Layer):
 		# top blob
 		blob_rois = np.zeros((1,5), dtype=np.float32)
 		blob_label = np.zeros((1,1,1,1), dtype=np.int)
+		
 		# turn img index in batch to number of proposals per img
 		imgs, num_rois_per_img = np.unique(img_index_in_batch, return_counts=True)
 
