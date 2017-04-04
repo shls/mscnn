@@ -2,6 +2,7 @@ import numpy as np
 import os
 import cv2
 from ucfarg_cfg import ucfarg_cfg
+from bbox_cal import nms, box_iou, center_distance, comp_bbox, bbox_denormalize, filter_proposals, get_confidence
 
 import caffe, json
 
@@ -45,6 +46,10 @@ class ModDataLayer_alternative(caffe.Layer):
 			self._bboxes_root = ucfarg_cfg.TEST.BBOXES_ROOT 
 			self._bboxes_extension = ucfarg_cfg.TEST.BBOXES_EXTENSION
 
+                top[0].reshape(self._imgs_per_batch,self._mix_channels, self._org_h, self._org_w)
+                top[1].reshape(self._imgs_per_batch,5)
+                top[2].reshape(self._imgs_per_batch,1)
+
 	def forward(self, bottom, top):
 
 		# Init result blob
@@ -75,14 +80,14 @@ class ModDataLayer_alternative(caffe.Layer):
 			label = int(lable_anno_data.split()[0])
 			img_id = int(lable_anno_data.split()[1])
 			# Get boxes
-			bbox_anno = os.path.join(self._bboxes_root, img_basename + self._bboxes_extension)
+			bbox_anno = os.path.join(self._bboxes_root, os.path.dirname(img_basename), os.path.basename(img_basename)[4:] + self._bboxes_extension)
 			assert os.path.exists(bbox_anno), 'Path does not exist: {}'.format(bbox_anno)
 			with open(bbox_anno) as f:
 				bboxes = []
 				for line in f:
 					line = line.split()
 					if line:
-						line = [int(i) for i in line]
+						line = [float(i) for i in line]
 						bboxes.append(line)
 
 			if self._last_img_id != img_id:
@@ -108,9 +113,9 @@ class ModDataLayer_alternative(caffe.Layer):
 						blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 					else:
 						for i in reversed(xrange(self._cur_buf)):
-							bboxes = comp_bbox(bboxes, self._bboxes_buf[i])
+							bboxes = comp_bbox(np.asarray(bboxes), np.asarray(self._bboxes_buf[i]))
 						for i in range(29,self._cur_buf-1,-1):
-							bboxes = comp_bbox(bboxes, self._bboxes_buf[i])
+							bboxes = comp_bbox(np.asarray(bboxes), np.asarray(self._bboxes_buf[i]))
 
 						if self._cur_buf == 30:
 							self._cur_buf = 0
@@ -124,7 +129,7 @@ class ModDataLayer_alternative(caffe.Layer):
 						bboxes = np.insert(bboxes,0,batch_index,axis=1)
 						
 						blob_rois = np.concatenate((blob_rois, bboxes))
-						blob_label = np.concatenate((blob_label, np.full((len(bboxes),1,1,1), labels[batch_index])))
+						blob_label = np.concatenate((blob_label, np.full((len(bboxes),1,1,1), label)))
 
 				else:
 					if len(self._bboxes_buf) == 30:

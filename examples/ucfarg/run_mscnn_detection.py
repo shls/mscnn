@@ -206,7 +206,7 @@ def video_prediction(net, video_name, thresh):
         folder = os.path.join("/home/ls/dataset/fe/", filename)
         if not os.path.exists(folder):
             os.makedirs(folder)
-        savepath =folder + "/" + filename + "." + str(index).zfill(4) + ".txt" 
+        savepath =folder + "/" + "mix_" + filename + "." + str(index).zfill(4) + ".txt" 
         # print savepath
 	index += 1
         # visual_output(net, im, thresh)
@@ -233,7 +233,7 @@ def bbox2file(net, im, thresh, savepath):
             y = bbox[1]
             width = bbox[2]
             height  = bbox[3]
-            line = "%s %s %s %s" %(x, y, x+width, y+width)
+            line = "%s %s %s %s\n" %(x, y, x+width, y+width)
             #print line
             file.write(line)
         else:
