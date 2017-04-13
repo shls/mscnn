@@ -37,7 +37,7 @@ void BoxOutputLayer<Dtype>::Reshape(
 
 template <typename Dtype>
 vector<vector<Dtype> > nmsMax(const vector<vector<Dtype> >bbs, const float overlap, 
-        const bool greedy, const string mode) {
+        const bool greedy, const string mode, const std::vector< std::pair<Dtype, std::pait<int, int>>> bb_index) {
   //bbs[i] = [batch_idx x y w h sc];
   vector<vector<Dtype> > outbbs;
   const int n = bbs.size();
@@ -54,11 +54,15 @@ vector<vector<Dtype> > nmsMax(const vector<vector<Dtype> >bbs, const float overl
       if(o>overlap) kp[j]=false;
     }
   }
+  int num_bb_bottom[7] = {0,0,0,0,0,0,0}
   for (int i = 0; i < n; i++) {
     if (kp[i]) {
       outbbs.push_back(bbs[i]);
+      num_bb_bottom[bb_index[i].second.second]++;
     }
   }
+  for (int i=0; i < 7; i++) cout<<num_bb_bottom[i];
+  cout<<"\n";
   return outbbs;
 }
 
@@ -106,7 +110,8 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
   
   for (int i = 0; i < num; i++) {
     vector<vector<Dtype> > boxes;
-    std::vector<std::pair<Dtype, int> > score_idx_vector;
+    //std::vector<std::pair<Dtype, int> > score_idx_vector;
+    std::vector<std::pair<Dtype, std::pait<int, int> > > score_idx_vector;
     int bb_count = 0;
     for (int j = 0; j < bottom_num; j++) {
       const Dtype* bottom_data = bottom[j]->cpu_data();
@@ -156,7 +161,8 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
           bb[0] = i; bb[1] = bbx; bb[2] = bby; bb[3] = bbw; bb[4] = bbh; bb[5] = fg_score;
           if (bbw >= min_size && bbh >= min_size) {
             boxes.push_back(bb);
-            score_idx_vector.push_back(std::make_pair(fg_score, bb_count++));
+            //score_idx_vector.push_back(std::make_pair(fg_score, bb_count++));
+            score_idx_vector.push_back(std::make_pair(fg_score, std::make_pair(bb_count++, j)));
           }
         }
       }
@@ -165,10 +171,12 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
     //DLOG(INFO) << "The number of boxes before NMS: " << boxes.size();
     if (boxes.size()<=0) continue;
     //ranking decreasingly
-    std::sort(score_idx_vector.begin(),score_idx_vector.end(),std::greater<std::pair<Dtype, int> >());
+    //std::sort(score_idx_vector.begin(),score_idx_vector.end(),std::greater<std::pair<Dtype, int> >());
+    std::sort(score_idx_vector.begin(),score_idx_vector.end(),std::greater<std::pair<Dtype, std::pair<int,int> > >());
     vector<vector<Dtype> > new_boxes;
     for (int kk = 0; kk < boxes.size(); kk++) {
-      new_boxes.push_back(boxes[score_idx_vector[kk].second]);
+      //new_boxes.push_back(boxes[score_idx_vector[kk].second]);#
+      new_boxes.push_back(boxes[score_idx_vector[kk].second.first]);
     }
     boxes.clear(); 
     boxes = new_boxes; new_boxes.clear();
@@ -179,7 +187,7 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
     }
 
     //NMS
-    new_boxes = nmsMax(boxes, iou_thr_, true, nms_type_);
+    new_boxes = nmsMax(boxes, iou_thr_, true, nms_type_, score_idx_vector);
     int num_new_boxes =  new_boxes.size();
     if (max_post_nms_num > 0 && num_new_boxes > max_post_nms_num) {
       num_new_boxes = max_post_nms_num;
