@@ -39,7 +39,7 @@ __C.VAL.MEAN_3 = [104, 117, 123]
 __C.VAL.MEAN_4 = [115, 115, 115, 115]
 
 __C.TEST = edict()
-__C.TEST.IMS_PER_BATCH = 1028
+__C.TEST.IMS_PER_BATCH = 512
 __C.TEST.SPATIAL_CHANNELS = 3
 __C.TEST.MIX_CHANNELS = 4
 __C.TEST.LIST_FILE = "/home/ls/dataset/mscnn/data/random_test.list"

@@ -80,7 +80,7 @@ class ModDataLayer_alternative(caffe.Layer):
 			label = int(lable_anno_data.split()[0])
 			img_id = int(lable_anno_data.split()[1])
 			# Get boxes
-			bbox_anno = os.path.join(self._bboxes_root, os.path.dirname(img_basename), os.path.basename(img_basename)[4:] + self._bboxes_extension)
+			bbox_anno = os.path.join(self._bboxes_root, img_basename + self._bboxes_extension)
 			assert os.path.exists(bbox_anno), 'Path does not exist: {}'.format(bbox_anno)
 			with open(bbox_anno) as f:
 				bboxes = []
