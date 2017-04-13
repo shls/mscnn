@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cfloat>
 #include <vector>
+#include <iostream>
 
 #include "caffe/util/math_functions.hpp"
 #include "caffe/layers/box_output_layer.hpp"
@@ -37,7 +38,7 @@ void BoxOutputLayer<Dtype>::Reshape(
 
 template <typename Dtype>
 vector<vector<Dtype> > nmsMax(const vector<vector<Dtype> >bbs, const float overlap, 
-        const bool greedy, const string mode, const std::vector< std::pair<Dtype, std::pait<int, int>>> bb_index) {
+        const bool greedy, const string mode, const vector<pair<Dtype, pair<int, int> > > bb_index ) {
   //bbs[i] = [batch_idx x y w h sc];
   vector<vector<Dtype> > outbbs;
   const int n = bbs.size();
@@ -54,15 +55,18 @@ vector<vector<Dtype> > nmsMax(const vector<vector<Dtype> >bbs, const float overl
       if(o>overlap) kp[j]=false;
     }
   }
-  int num_bb_bottom[7] = {0,0,0,0,0,0,0}
+  int num_bb_bottom[7] = {0,0,0,0,0,0,0};
   for (int i = 0; i < n; i++) {
     if (kp[i]) {
       outbbs.push_back(bbs[i]);
       num_bb_bottom[bb_index[i].second.second]++;
     }
   }
-  for (int i=0; i < 7; i++) cout<<num_bb_bottom[i];
-  cout<<"\n";
+  string str;
+  stringstream strStream (stringstream::in | stringstream::out);
+  for (int i=0; i < 7; i++) strStream << num_bb_bottom[i] << " ";
+  str = strStream.str();
+  LOG(INFO) << "Bbox statistical after nms: " << str;
   return outbbs;
 }
 
@@ -111,7 +115,7 @@ void BoxOutputLayer<Dtype>::Forward_cpu(
   for (int i = 0; i < num; i++) {
     vector<vector<Dtype> > boxes;
     //std::vector<std::pair<Dtype, int> > score_idx_vector;
-    std::vector<std::pair<Dtype, std::pait<int, int> > > score_idx_vector;
+    std::vector<std::pair<Dtype, std::pair<int, int> > > score_idx_vector;
     int bb_count = 0;
     for (int j = 0; j < bottom_num; j++) {
       const Dtype* bottom_data = bottom[j]->cpu_data();
