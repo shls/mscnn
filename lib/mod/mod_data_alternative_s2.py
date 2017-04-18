@@ -32,6 +32,7 @@ class ModDataLayer_alternative(caffe.Layer):
 			self._label_extension = ucfarg_cfg.TRAIN.LABEL_EXTENSION
 			self._bboxes_root = ucfarg_cfg.TRAIN.BBOXES_ROOT 
 			self._bboxes_extension = ucfarg_cfg.TRAIN.BBOXES_EXTENSION
+			self._enlarge_spatial = ucfarg_cfg.TRAIN.ENLARGE_SPATIAL
 		else:
 			# Setup ModDataLayer
 			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TEST.LIST_FILE)]
@@ -48,6 +49,26 @@ class ModDataLayer_alternative(caffe.Layer):
 			self._label_extension = ucfarg_cfg.TEST.LABEL_EXTENSION
 			self._bboxes_root = ucfarg_cfg.TEST.BBOXES_ROOT 
 			self._bboxes_extension = ucfarg_cfg.TEST.BBOXES_EXTENSION
+			self._enlarge_spatial = ucfarg_cfg.TEST.ENLARGE_SPATIAL
+			self._enlarge_spatial = ucfarg_cfg.TEST.ENLARGE_SPATIAL
+
+	def enlarge_bbox(self, tight_bboxes):
+		for i in len(tight_bboxes):
+			x = tight_bboxes[i][1]
+			y = tight_bboxes[i][2]
+			width = tight_bboxes[i][3] - tight_bboxes[i][1]
+			height = tight_bboxes[i][4] - tight_bboxes[i][2]
+
+			tl_x = x - width if (x-width) > 0 else 0
+			tl_y = y - 0.5 * height if (y-0.5*height) > 0 else 0
+			rd_x = x + 2 * width if (x+2*width) < self._org_w else self._org_w
+			rd_y = y + 1.5 * height if (y+1.5*height) < self._org_h else self._org_h
+
+			tight_bboxes[i][1] = tl_x
+			tight_bboxes[i][2] = tl_y
+			tight_bboxes[i][3] = rd_x
+			tight_bboxes[i][4] = rd_y
+		return tight_bboxes
 
 	def forward(self, bottom, top):
 
@@ -146,6 +167,10 @@ class ModDataLayer_alternative(caffe.Layer):
 						#Compensate for batch index
 						bboxes = np.insert(bboxes,0,batch_index,axis=1)
 						spatial_bboxes = np.insert(spatial_bboxes,0,batch_index,axis=1)
+
+						#Enlarge spatial
+						if self._enlarge_spatial:
+							spatial_bboxes = enlarge_bbox(spatial_bboxes)
 						
 						blob_spatial_rois = np.concatenate((blob_spatial_rois,spatial_bboxes))
 						blob_temporal_rois = np.concatenate((blob_temporal_rois, bboxes))

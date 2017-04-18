@@ -32,6 +32,7 @@ __C.TRAIN.MEAN_4 = [115, 115, 115, 115]
 __C.TRAIN.MEAN_1 = [115,]
 __C.TRAIN.NMS_THRESH = 0.3
 __C.TRAIN.NMS_CONFI_THRESH = 0.9
+__C.TRAIN.ENLARGE_SPATIAL = True
 
 __C.VAL = edict()
 __C.VAL.DATA_ROOT = '/home/ls/dataset/mscnn/data'
@@ -62,6 +63,6 @@ __C.TEST.MEAN_4 = [115, 115, 115, 115]
 __C.TEST.MEAN_1 = [115,]
 __C.TEST.NMS_THRESH = 0.3
 __C.TEST.NMS_CONFI_THRESH = 0.9
-
+__C.TEST.ENLARGE_SPATIAL = True
 # Common settings
 __C.GPU_ID = 0
