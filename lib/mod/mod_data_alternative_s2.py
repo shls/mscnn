@@ -60,7 +60,7 @@ class ModDataLayer_alternative_s2(caffe.Layer):
 
 
 	def enlarge_bbox(self, tight_bboxes):
-		for i in len(tight_bboxes):
+		for i in xrange(len(tight_bboxes)):
 			x = tight_bboxes[i][1]
 			y = tight_bboxes[i][2]
 			width = tight_bboxes[i][3] - tight_bboxes[i][1]
@@ -99,12 +99,12 @@ class ModDataLayer_alternative_s2(caffe.Layer):
 			b,g,r,temporal = cv2.split(mix_im)
 			spatial_im = cv2.merge((b,g,r))
 			spatial_im = spatial_im.astype(np.float32)
-			temporal_im = np.expand_dims(temporal, axis=2)
+			temporal_im = np.expand_dims(temporal, axis=2).astype(np.float32)
 
 			spatial_im -= self._mean_3
 			temporal_im -= self._mean_1
 			spatial_im = spatial_im.transpose((2,0,1))
-			temporal_im = temporal_im.transpose((2,0,1)).astype(np.float32)
+			temporal_im = temporal_im.transpose((2,0,1))
 
 			blob_spatial_im[batch_index, :, :, :] = spatial_im
 			blob_temporal_im[batch_index, :, :, :] = temporal_im
@@ -177,7 +177,7 @@ class ModDataLayer_alternative_s2(caffe.Layer):
 
 						#Enlarge spatial
 						if self._enlarge_spatial:
-							spatial_bboxes = enlarge_bbox(spatial_bboxes)
+							spatial_bboxes = self.enlarge_bbox(spatial_bboxes)
 						
 						blob_spatial_rois = np.concatenate((blob_spatial_rois,spatial_bboxes))
 						blob_temporal_rois = np.concatenate((blob_temporal_rois, bboxes))
