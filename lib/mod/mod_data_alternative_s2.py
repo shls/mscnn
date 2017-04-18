@@ -2,11 +2,12 @@ import numpy as np
 import os
 import cv2
 from ucfarg_cfg import ucfarg_cfg
+from bbox_cal import nms, box_iou, center_distance, comp_bbox, bbox_denormalize, filter_proposals, get_confidence
 
 import caffe, json
 
 
-class ModDataLayer_alternative(caffe.Layer):
+class ModDataLayer_alternative_s2(caffe.Layer):
 	# """docstring for ModDataLayer"""
 
 	def setup(self, bottom, top):
@@ -50,7 +51,13 @@ class ModDataLayer_alternative(caffe.Layer):
 			self._bboxes_root = ucfarg_cfg.TEST.BBOXES_ROOT 
 			self._bboxes_extension = ucfarg_cfg.TEST.BBOXES_EXTENSION
 			self._enlarge_spatial = ucfarg_cfg.TEST.ENLARGE_SPATIAL
-			self._enlarge_spatial = ucfarg_cfg.TEST.ENLARGE_SPATIAL
+
+		top[0].reshape(self._imgs_per_batch, self._spatial_channels, self._org_h, self._org_w)
+		top[1].reshape(self._imgs_per_batch, self._temporal_channels, self._org_h, self._org_w)
+		top[2].reshape(1,5)
+		top[3].reshape(1,5)
+		top[4].reshape(1)
+
 
 	def enlarge_bbox(self, tight_bboxes):
 		for i in len(tight_bboxes):
@@ -97,7 +104,7 @@ class ModDataLayer_alternative(caffe.Layer):
 			spatial_im -= self._mean_3
 			temporal_im -= self._mean_1
 			spatial_im = spatial_im.transpose((2,0,1))
-			temporal_im = temporal_im.transpose((2,0,1))
+			temporal_im = temporal_im.transpose((2,0,1)).astype(np.float32)
 
 			blob_spatial_im[batch_index, :, :, :] = spatial_im
 			blob_temporal_im[batch_index, :, :, :] = temporal_im
@@ -122,7 +129,7 @@ class ModDataLayer_alternative(caffe.Layer):
 				for line in f:
 					line = line.split()
 					if line:
-						line = [int(i) for i in line]
+						line = [float(i) for i in line]
 						bboxes.append(line)
 			spatial_bboxes = bboxes[:]
 
@@ -152,9 +159,9 @@ class ModDataLayer_alternative(caffe.Layer):
 						blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 					else:
 						for i in reversed(xrange(self._cur_buf)):
-							bboxes = comp_bbox(bboxes, self._bboxes_buf[i])
+							bboxes = comp_bbox(np.asarray(bboxes), np.asarray(self._bboxes_buf[i]))
 						for i in range(29,self._cur_buf-1,-1):
-							bboxes = comp_bbox(bboxes, self._bboxes_buf[i])
+							bboxes = comp_bbox(np.asarray(bboxes), np.asarray(self._bboxes_buf[i]))
 
 						if self._cur_buf == 30:
 							self._cur_buf = 0
@@ -174,7 +181,7 @@ class ModDataLayer_alternative(caffe.Layer):
 						
 						blob_spatial_rois = np.concatenate((blob_spatial_rois,spatial_bboxes))
 						blob_temporal_rois = np.concatenate((blob_temporal_rois, bboxes))
-						blob_label = np.concatenate((blob_label, np.full((len(bboxes),1,1,1), labels[batch_index])))
+						blob_label = np.concatenate((blob_label, np.full((len(bboxes),1,1,1), label)))
 
 				else:
 					if len(self._bboxes_buf) == 30:
