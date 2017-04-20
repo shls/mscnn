@@ -16,153 +16,111 @@ class ModDataLayer(caffe.Layer):
 	# If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
 	# separate process and made available through self._blob_queue.
 	# """
-		if (self.phase == caffe.TRAIN):
-			blob_spatial_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.SPATIAL_CHANNELS, ucfarg_cfg.TRAIN.TARGET_H, ucfarg_cfg.TRAIN.TARGET_W), dtype=np.float32)
-			blob_mix_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.MIX_CHANNELS, ucfarg_cfg.TRAIN.ORG_H, ucfarg_cfg.TRAIN.ORG_W), dtype=np.float32)
-			label_blob = np.zeros((0), dtype=np.float32)
-			clip_id_blob = np.zeros((0), dtype=np.float32)
+		blob_spatial_im = np.zeros((self._imgs_per_batch, self._spatial_channels, self._target_h,self._target_w), dtype=np.float32)
+		blob_mix_im = np.zeros((self._imgs_per_batch, self._mix_channels, self._org_h, self._org_w), dtype=np.float32)
+		label_blob = np.zeros((0), dtype=np.float32)
+		clip_id_blob = np.zeros((0), dtype=np.float32)
 
-			for batch_index in xrange(ucfarg_cfg.TRAIN.IMS_PER_BATCH):
+		for batch_index in xrange(self._imgs_per_batch):
 
-				if self._cur == len(self._indexlist):
-					self._cur = 0
+			if self._cur == len(self._indexlist):
+				self._cur = 0
 
-				index = self._indexlist[self._cur]
-				mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TRAIN.DATA_ROOT, index + ucfarg_cfg.TRAIN.DATA_EXTENSION)))
+			index = self._indexlist[self._cur]
+			mix_im = np.asarray(np.load(os.path.join(self._data_root, index + self._data_extension)))
 
-				spatial_im = np.asarray(mix_im[:, :, 0:-1])
-				spatial_im = cv2.resize(spatial_im, (ucfarg_cfg.TRAIN.TARGET_W, ucfarg_cfg.TRAIN.TARGET_H)).astype(np.float32)
-				spatial_im -= ucfarg_cfg.TRAIN.MEAN_3
-				spatial_im = spatial_im.transpose((2,0,1))
-				blob_spatial_im[batch_index, :, :, :] = spatial_im
+			spatial_im = np.asarray(mix_im[:, :, 0:-1])
+			spatial_im = cv2.resize(spatial_im, (self._target_w, self._target_h)).astype(np.float32)
+			spatial_im -= self._mean_3
+			spatial_im = spatial_im.transpose((2,0,1))
+			blob_spatial_im[batch_index, :, :, :] = spatial_im
 
-				mix_im = mix_im.astype(np.float32)
-				mix_im -= ucfarg_cfg.TRAIN.MEAN_4
-				mix_im = mix_im.transpose((2,0,1))
-				blob_mix_im[batch_index, :, :, :] = mix_im
+			mix_im = mix_im.astype(np.float32)
+			mix_im -= self._mean_4
+			mix_im = mix_im.transpose((2,0,1))
+			blob_mix_im[batch_index, :, :, :] = mix_im
 
-				if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
-					print "image shape mismatch by Ls"
-					raise
+			if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
+				print "image shape mismatch by Ls"
+				raise
 
-				label_file = os.path.join(ucfarg_cfg.TRAIN.LABEL_ROOT, index + ucfarg_cfg.TRAIN.LABEL_EXTENSION)
-				assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
+			label_file = os.path.join(self._label_root, index + self._label_extension)
+			assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
 
-				with open(label_file) as f:
-					label_data = f.readline()
+			with open(label_file) as f:
+				label_data = f.readline()
 
-				label = int(label_data.split()[0])
-				clip_id = int(label_data.split()[1])
+			label = int(label_data.split()[0])
+			clip_id = int(label_data.split()[1])
 
-				label_blob = np.hstack((label_blob, label))
-				clip_id_blob = np.hstack((clip_id_blob, clip_id))
+			label_blob = np.hstack((label_blob, label))
+			clip_id_blob = np.hstack((clip_id_blob, clip_id))
 
-				self._cur += 1
-			
-			blobs = {'clip_id': clip_id_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
-			return blobs
-		else:
-			blob_spatial_im = np.zeros((ucfarg_cfg.TEST.IMS_PER_BATCH, ucfarg_cfg.TEST.SPATIAL_CHANNELS, ucfarg_cfg.TEST.TARGET_H, ucfarg_cfg.TEST.TARGET_W), dtype=np.float32)
-			blob_mix_im = np.zeros((ucfarg_cfg.TEST.IMS_PER_BATCH, ucfarg_cfg.TEST.MIX_CHANNELS, ucfarg_cfg.TEST.ORG_H, ucfarg_cfg.TEST.ORG_W), dtype=np.float32)
-			label_blob = np.zeros((0), dtype=np.float32)
-			clip_id_blob = np.zeros((0), dtype=np.float32)
-
-			for batch_index in xrange(ucfarg_cfg.TEST.IMS_PER_BATCH):
-
-				if self._cur == len(self._indexlist):
-					self._cur = 0
-
-				index = self._indexlist[self._cur]
-				mix_im = np.asarray(np.load(os.path.join(ucfarg_cfg.TEST.DATA_ROOT, index + ucfarg_cfg.TEST.DATA_EXTENSION)))
-
-				spatial_im = np.asarray(mix_im[:, :, 0:-1])
-				spatial_im = cv2.resize(spatial_im, (ucfarg_cfg.TEST.TARGET_W, ucfarg_cfg.TEST.TARGET_H)).astype(np.float32)
-				spatial_im -= ucfarg_cfg.TEST.MEAN_3
-				spatial_im = spatial_im.transpose((2,0,1))
-				blob_spatial_im[batch_index, :, :, :] = spatial_im
-
-				mix_im = mix_im.astype(np.float32)
-				mix_im -= ucfarg_cfg.TEST.MEAN_4
-				mix_im = mix_im.transpose((2,0,1))
-				blob_mix_im[batch_index, :, :, :] = mix_im
-
-				if mix_im.shape[0] != 4 or spatial_im.shape[0] !=3:
-					print "image shape mismatch by Ls"
-					raise
-
-				label_file = os.path.join(ucfarg_cfg.TEST.LABEL_ROOT, index + ucfarg_cfg.TEST.LABEL_EXTENSION)
-				assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
-
-				with open(label_file) as f:
-					label_data = f.readline()
-
-				label = int(label_data.split()[0])
-				clip_id = int(label_data.split()[1])
-
-				label_blob = np.hstack((label_blob, label))
-				clip_id_blob = np.hstack((clip_id_blob, clip_id))
-
-				self._cur += 1
-			
-			blobs = {'clip_id': clip_id_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
-			return blobs
+			self._cur += 1
+		
+		blobs = {'clip_id': clip_id_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
+		return blobs
 
 	def setup(self, bottom, top):
 
+		self._cur = 0
+		self._name_to_top_map = {}
+
 		if (self.phase == caffe.TRAIN):
 			# Setup ModDataLayer
-			self._cur = 0
 			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TRAIN.LIST_FILE)]
-			self._name_to_top_map = {}
+			self._imgs_per_batch = ucfarg_cfg.TRAIN.END2END_IMS_PER_BATCH
+			self._spatial_channels = ucfarg_cfg.TRAIN.SPATIAL_CHANNELS
+			self._mix_channels = ucfarg_cfg.TRAIN.MIX_CHANNELS
+			self._target_h = ucfarg_cfg.TRAIN.TARGET_H
+			self._target_w = ucfarg_cfg.TRAIN.TARGET_W
+			self._org_h = ucfarg_cfg.TRAIN.ORG_H
+			self._org_w = ucfarg_cfg.TRAIN.ORG_W
+			self._data_root = ucfarg_cfg.TRAIN.DATA_ROOT
+			self._data_extension = ucfarg_cfg.TRAIN.DATA_EXTENSION
+			self._mean_3 = ucfarg_cfg.TRAIN.MEAN_3
+			self._mean_4 = ucfarg_cfg.TRAIN.MEAN_4
+			self._label_root = ucfarg_cfg.TRAIN.LABEL_ROOT
+			self._label_extension = ucfarg_cfg.TRAIN.LABEL_EXTENSION
 
-			idx = 0
-			top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.SPATIAL_CHANNELS,
-				ucfarg_cfg.TRAIN.TARGET_H, ucfarg_cfg.TRAIN.TARGET_W)
-			self._name_to_top_map['spatial_data'] = idx
-			idx += 1
-
-			top[idx].reshape(ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.MIX_CHANNELS,
-				ucfarg_cfg.TRAIN.ORG_H, ucfarg_cfg.TRAIN.ORG_W)
-			self._name_to_top_map['mix_data'] = idx
-			idx += 1
-			
-			top[idx].reshape(1)
-			self._name_to_top_map['labels'] = idx
-			idx += 1
-
-			top[idx].reshape(1)
-			self._name_to_top_map['clip_id'] = idx
-			idx += 1
-
-			print 'ModDataLayer: name_to_top:', self._name_to_top_map
-			assert len(top) == len(self._name_to_top_map)
 		else:
 			# Setup ModDataLayer
-			self._cur = 0
 			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TEST.LIST_FILE)]
-			self._name_to_top_map = {}
+			self._imgs_per_batch = ucfarg_cfg.TEST.END2END_IMS_PER_BATCH
+			self._spatial_channels = ucfarg_cfg.TEST.SPATIAL_CHANNELS
+			self._mix_channels = ucfarg_cfg.TEST.MIX_CHANNELS
+			self._target_h = ucfarg_cfg.TEST.TARGET_H
+			self._target_w = ucfarg_cfg.TEST.TARGET_W
+			self._org_h = ucfarg_cfg.TEST.ORG_H
+			self._org_w = ucfarg_cfg.TEST.ORG_W
+			self._data_root = ucfarg_cfg.TEST.DATA_ROOT
+			self._data_extension = ucfarg_cfg.TEST.DATA_EXTENSION
+			self._mean_3 = ucfarg_cfg.TEST.MEAN_3
+			self._mean_4 = ucfarg_cfg.TEST.MEAN_4
+			self._label_root = ucfarg_cfg.TEST.LABEL_ROOT
+			self._label_extension = ucfarg_cfg.TEST.LABEL_EXTENSION
 
-			idx = 0
-			top[idx].reshape(ucfarg_cfg.TEST.IMS_PER_BATCH, ucfarg_cfg.TEST.SPATIAL_CHANNELS,
-				ucfarg_cfg.TEST.TARGET_H, ucfarg_cfg.TEST.TARGET_W)
-			self._name_to_top_map['spatial_data'] = idx
-			idx += 1
+		idx = 0
+		top[idx].reshape(self._imgs_per_batch, self._spatial_channels,
+			self._target_h,self._target_w)
+		self._name_to_top_map['spatial_data'] = idx
+		idx += 1
 
-			top[idx].reshape(ucfarg_cfg.TEST.IMS_PER_BATCH, ucfarg_cfg.TEST.MIX_CHANNELS,
-				ucfarg_cfg.TEST.ORG_H, ucfarg_cfg.TEST.ORG_W)
-			self._name_to_top_map['mix_data'] = idx
-			idx += 1
-			
-			top[idx].reshape(1)
-			self._name_to_top_map['labels'] = idx
-			idx += 1
+		top[idx].reshape(self._imgs_per_batch, self._mix_channels,
+			self._org_h, self._org_w)
+		self._name_to_top_map['mix_data'] = idx
+		idx += 1
+		
+		top[idx].reshape(1)
+		self._name_to_top_map['labels'] = idx
+		idx += 1
 
-			top[idx].reshape(1)
-			self._name_to_top_map['clip_id'] = idx
-			idx += 1
+		top[idx].reshape(1)
+		self._name_to_top_map['clip_id'] = idx
+		idx += 1
 
-			print 'ModDataLayer: name_to_top:', self._name_to_top_map
-			assert len(top) == len(self._name_to_top_map)		
+		print 'ModDataLayer: name_to_top:', self._name_to_top_map
+		assert len(top) == len(self._name_to_top_map)		
 
 	def forward(self, bottom, top):
 
