@@ -66,18 +66,23 @@ def parse_args():
                         help='model to test',
                         default='/home/ls/mscnn/examples/caltech/mscnn-7s-720-pretrained/mscnn_caltech_train_2nd_iter_20000.caffemodel'\
                         , type=str)
-    parser.add_argument('--do_bb_norm', dest='do_bb_norm',help="Whether to denormalize the box with std or means.\
+    parser.add_argument('--bb_norm', dest='do_bb_norm',help="Whether to denormalize the box with std or means.\
     Author's pretrained model does not need this. ",
-                default=True , type=bool)
+                action='store_true')
+    parser.add_argument('--no_bb_norm', dest='do_bb_norm',help="Whether to denormalize the box with std or means.\
+    Author's pretrained model does not need this. ",
+                action='store_false')
+    parser.set_defaults(do_bb_norm=False)
     parser.add_argument('--height', dest='height',help="Decide the resizing height of input model and images",
                 default=720 , type=int)
     parser.add_argument('--detection', dest='dt_name',  help='model to test', default='detection_1', type=str)
     parser.add_argument('--video_file', dest='video_name',  help='video to test', default='', type=str)
     parser.add_argument('--threshold', dest='threshold', help='threshold for boxes', default=0.9, type=float)
-    parser.add_argument('--recursive', dest='recursive', help='recursively testing', default=False, type=bool)
     parser.add_argument('--folder', dest='root_folder', help='root folder for recursively test', default='', type=str)
     parser.add_argument('--filetype', dest='filetype', help='file type(video/img)', default='img',type=str)
-
+    parser.add_argument('--with_recursive', dest='recursive', help='recursively testing', action='store_true')
+    parser.add_argument('--no_recursive', dest='recursive', help='recursively testing', action='store_false')
+    parser.set_defaults(recursive=False)
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -115,6 +120,7 @@ def bbox_denormalize(bbox_pred, proposals, ratios, orgW, orgH):
     if args.do_bb_norm:
         bbox_pred *= bbox_stds 
         bbox_pred += bbox_means
+        print "do bb norm"
 
     ctr_x = proposals[:,0]+0.5*proposals[:,2]
     ctr_y = proposals[:,1]+0.5*proposals[:,3]
