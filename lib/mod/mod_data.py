@@ -20,7 +20,7 @@ class ModDataLayer(caffe.Layer):
 			blob_spatial_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.SPATIAL_CHANNELS, ucfarg_cfg.TRAIN.TARGET_H, ucfarg_cfg.TRAIN.TARGET_W), dtype=np.float32)
 			blob_mix_im = np.zeros((ucfarg_cfg.TRAIN.IMS_PER_BATCH, ucfarg_cfg.TRAIN.MIX_CHANNELS, ucfarg_cfg.TRAIN.ORG_H, ucfarg_cfg.TRAIN.ORG_W), dtype=np.float32)
 			label_blob = np.zeros((0), dtype=np.float32)
-			init_tag_blob = np.zeros((0), dtype=np.float32)
+			clip_id_blob = np.zeros((0), dtype=np.float32)
 
 			for batch_index in xrange(ucfarg_cfg.TRAIN.IMS_PER_BATCH):
 
@@ -52,20 +52,20 @@ class ModDataLayer(caffe.Layer):
 					label_data = f.readline()
 
 				label = int(label_data.split()[0])
-				init_tag = int(label_data.split()[1])
+				clip_id = int(label_data.split()[1])
 
 				label_blob = np.hstack((label_blob, label))
-				init_tag_blob = np.hstack((init_tag_blob, init_tag))
+				clip_id_blob = np.hstack((clip_id_blob, clip_id))
 
 				self._cur += 1
 			
-			blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
+			blobs = {'clip_id': clip_id_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
 			return blobs
 		else:
 			blob_spatial_im = np.zeros((ucfarg_cfg.TEST.IMS_PER_BATCH, ucfarg_cfg.TEST.SPATIAL_CHANNELS, ucfarg_cfg.TEST.TARGET_H, ucfarg_cfg.TEST.TARGET_W), dtype=np.float32)
 			blob_mix_im = np.zeros((ucfarg_cfg.TEST.IMS_PER_BATCH, ucfarg_cfg.TEST.MIX_CHANNELS, ucfarg_cfg.TEST.ORG_H, ucfarg_cfg.TEST.ORG_W), dtype=np.float32)
 			label_blob = np.zeros((0), dtype=np.float32)
-			init_tag_blob = np.zeros((0), dtype=np.float32)
+			clip_id_blob = np.zeros((0), dtype=np.float32)
 
 			for batch_index in xrange(ucfarg_cfg.TEST.IMS_PER_BATCH):
 
@@ -97,14 +97,14 @@ class ModDataLayer(caffe.Layer):
 					label_data = f.readline()
 
 				label = int(label_data.split()[0])
-				init_tag = int(label_data.split()[1])
+				clip_id = int(label_data.split()[1])
 
 				label_blob = np.hstack((label_blob, label))
-				init_tag_blob = np.hstack((init_tag_blob, init_tag))
+				clip_id_blob = np.hstack((clip_id_blob, clip_id))
 
 				self._cur += 1
 			
-			blobs = {'init_tag': init_tag_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
+			blobs = {'clip_id': clip_id_blob, 'labels': label_blob, 'mix_data': blob_mix_im, 'spatial_data': blob_spatial_im}
 			return blobs
 
 	def setup(self, bottom, top):
@@ -131,7 +131,7 @@ class ModDataLayer(caffe.Layer):
 			idx += 1
 
 			top[idx].reshape(1)
-			self._name_to_top_map['init_tag'] = idx
+			self._name_to_top_map['clip_id'] = idx
 			idx += 1
 
 			print 'ModDataLayer: name_to_top:', self._name_to_top_map
@@ -158,7 +158,7 @@ class ModDataLayer(caffe.Layer):
 			idx += 1
 
 			top[idx].reshape(1)
-			self._name_to_top_map['init_tag'] = idx
+			self._name_to_top_map['clip_id'] = idx
 			idx += 1
 
 			print 'ModDataLayer: name_to_top:', self._name_to_top_map

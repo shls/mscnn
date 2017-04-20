@@ -69,13 +69,6 @@ def comp_bbox(current_bbox, last_bbox):
 
 def bbox_denormalize(bbox_pred, proposals, ratios, orgW, orgH):
 
-	bbox_means = [0, 0, 0, 0]
-	bbox_stds = [0.1, 0.1, 0.2, 0.2]
-
-	# if args.do_bb_norm:
-		# bbox_pred *= bbox_stds 
-		# bbox_pred += bbox_means
-
 	ctr_x = proposals[:,0]+0.5*proposals[:,2]
 	ctr_y = proposals[:,1]+0.5*proposals[:,3]
 

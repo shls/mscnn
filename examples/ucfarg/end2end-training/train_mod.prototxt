@@ -5,7 +5,7 @@ layer {
   top: 'spatial_data'
   top: 'mix_data'
   top: 'label'
-  top: 'event_index'
+  top: 'clip_id'
   python_param {
     module: 'mod.mod_data'
     layer: 'ModDataLayer'
@@ -20,7 +20,7 @@ layer {
   top: 'spatial_data'
   top: 'mix_data'
   top: 'label'
-  top: 'event_index'
+  top: 'clip_id'
   python_param {
     module: 'mod.mod_data'
     layer: 'ModDataLayer'
@@ -767,7 +767,7 @@ layer {
   bottom: "bbox_pred"
   bottom: 'proposals_score'
   bottom: "cls_pred"
-  bottom: "event_index"
+  bottom: "clip_id"
   bottom: "label"
   top: "bbox_nms"
   top: "label_reshape"
