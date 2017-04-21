@@ -1,17 +1,17 @@
-net: "/home/ls/mscnn/examples/ucfarg/mscnn-7s-720-pretrained/train_mod.prototxt"
-test_iter: 5445
-test_interval: 1500
+net: "/home/ls/mscnn/examples/ucfarg/end2end-training/train_mod.prototxt"
+# test_iter: 3267
+# test_interval: 5000
 # lr for fine-tuning should be lower than when starting from scratch
-base_lr: 0.0001
+base_lr: 0.00008
 lr_policy: "step"
 gamma: 0.1
 # stepsize should also be lower, as we're closer to being done
-stepsize: 10000
+stepsize: 12000
 display: 10
-max_iter: 30000
+max_iter: 36000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 10000
-snapshot_prefix: "/home/ls/mscnn/examples/ucfarg/end2end-training/mod"
+snapshot_prefix: "/home/ls/mscnn/examples/ucfarg/end2end-training/output/mod"
 # uncomment the following to default to CPU mode solving
 # solver_mode: CPU

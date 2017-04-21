@@ -1,0 +1,4 @@
+trail0: Generate MHI bounding box from the MSCNN output bounding box of past 30 frames with bb normilize
+trail1: Generate MHI bounding box from the MSCNN output bounding box of past 30 frames without bb normilize
+trail2: Generate MHI bounding box from the MSCNN output bounding box of past 30 frames without bb normilize nor pool6 LFCN_3_5x7 LFCN_4_3x5
+trail3: Generate MHI bounding box from the MSCNN output bounding box of past 30 frames without bb normilize nor pool5 conv6_1 relu6_1 pool6 LFCN_3_3x5 LFCN_3_5x7 LFCN_4_3x5

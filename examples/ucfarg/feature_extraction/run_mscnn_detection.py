@@ -61,10 +61,10 @@ def parse_args():
                         default=0, type=int)
     parser.add_argument('--net', dest='prototxt',
                         help='prototxt file defining the network',
-                        default='/home/ls/mscnn/examples/caltech/mscnn-7s-720-pretrained/mscnn_deploy.prototxt', type=str)
+                        default='/home/ls/mscnn/examples/ucfarg/feature_extraction/mscnn_deploy.prototxt', type=str)
     parser.add_argument('--weights', dest='caffemodel',
                         help='model to test',
-                        default='/home/ls/mscnn/examples/caltech/mscnn-7s-720-pretrained/mscnn_caltech_train_2nd_iter_20000.caffemodel'\
+                        default='/home/ls/mscnn/examples/ucfarg/feature_extraction/mscnn_caltech_train_2nd_iter_20000.caffemodel'\
                         , type=str)
     parser.add_argument('--bb_norm', dest='do_bb_norm',help="Whether to denormalize the box with std or means.\
     Author's pretrained model does not need this. ",
