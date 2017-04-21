@@ -1,0 +1,12 @@
+solution1:
+Generate MHI bounding box from the MSCNN output bounding box of past 30 frames. Feature map adapts the MHI bounding box for both spatial and MHI images.
+
+solution2:
+1.  ucfarg_cfg.TRAIN.ENLARGE_SPATIAL = False. 
+Generate MHI bounding box from the MSCNN output bounding box of past 30 frames. Feature map uses MHI bounding box for MHI images and MSCNN output bounding box for spatial images, them concatenate spatial and MHI roi images.
+
+2.  ucfarg_cfg.TRAIN.ENLARGE_SPATIAL = True.
+Generate MHI bounding box from the MSCNN output bounding box of past 30 frames. Feature map uses MHI bounding box for MHI images and MSCNN output bounding box for spatial images, them concatenate spatial and MHI roi images. Enlarge spatial bounding box: width -> 3x, height -> 2x, same center.
+
+
+
