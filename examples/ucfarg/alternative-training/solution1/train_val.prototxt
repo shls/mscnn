@@ -1,4 +1,4 @@
-name: "MOD_CaffeNet"
+name: "MOD_AT1_CaffeNet"
 layer {
   name: 'input-data'
   type: 'Python'
