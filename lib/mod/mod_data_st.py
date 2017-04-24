@@ -37,7 +37,7 @@ class ModDataLayerST(caffe.Layer):
 
 			temporal_im = np.asarray(mix_im[:, :, -1])
 			temporal_im = self._mean_1
-			temporal_im = temporal_im.transpose((2,0,1))
+			temporal_im = np.expand_dims(temporal_im, axis=0)
 			blob_temporal_im[batch_index, :, :, :] = temporal_im
 
 			if temporal_im.shape[0] != 1 or spatial_im.shape[0] !=3:

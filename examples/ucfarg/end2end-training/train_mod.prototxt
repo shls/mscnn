@@ -724,7 +724,7 @@ layer {
   roi_pooling_param {
     pooled_w: 64
     pooled_h: 64
-    spatial_scale: 0.125 # 1/1
+    spatial_scale: 0.167 # 1/1
   }
 }
 layer {
@@ -739,7 +739,6 @@ layer {
     spatial_scale: 0.125 # 1/1
   }
 }
-
 layer {
   name: "conv7"
   type: "Convolution"
@@ -829,6 +828,12 @@ layer {
   type: "Convolution"
   bottom: "concat_data"
   top: "conv9"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
   convolution_param {
     num_output: 512
     pad: 2
