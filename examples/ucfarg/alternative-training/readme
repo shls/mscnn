@@ -9,4 +9,5 @@ Generate MHI bounding box from the MSCNN output bounding box of past 30 frames. 
 Generate MHI bounding box from the MSCNN output bounding box of past 30 frames. Feature map uses MHI bounding box for MHI images and MSCNN output bounding box for spatial images, them concatenate spatial and MHI roi images. Enlarge spatial bounding box: width -> 3x, height -> 2x, same center.
 
 
-
+solution3:
+Use Lenet, spatial feature comes from Conv4_3 or Conv5_3 or Conv6_1, temporal feature comes from raw data
