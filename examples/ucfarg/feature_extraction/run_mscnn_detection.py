@@ -211,9 +211,12 @@ def extract_feature(net, im, conv_list, target_size= (960, 720)):
     #Feedforward
     net.blobs['data'].data[...] = im 
     output = net.forward()
+    feature_list = []
 
     for conv in conv_list:
-        feature_list.append(output[conv])
+        feature_list.append(net.blobs[conv].data)
+        #print net.blobs[conv].data.shape
+#output[conv])
 
     return feature_list
 
@@ -228,14 +231,14 @@ def save_feature(net, video_name, thresh):
         filename = os.path.splitext(os.path.basename(video_name))[0]
         
         for conv in conv_list:
-            if not os.path.exists(os.path.join("/home/ls/dataset/", conv, filename))
+            if not os.path.exists(os.path.join("/home/ls/dataset/", conv, filename)):
                 os.makedirs(os.path.join("/home/ls/dataset/", conv, filename))
 
         feature_list = extract_feature(net, im, conv_list)
-        index += 1
-        for i in len(conv_list):
-            np.save(os.path.join("/home/ls/dataset/", conv, filename,"/" + "mix_" + filename + "." + str(index).zfill(4) + ".txt"), np.asarray(feature_list[i]))
 
+        for i in xrange(len(conv_list)):
+            np.save(os.path.join("/home/ls/dataset/", conv_list[i], filename, "mix_" + filename + "." + str(index).zfill(4)), feature_list[i])
+        index += 1
         success,im = vidcap.read() 
 
 def video_prediction(net, video_name, thresh):
@@ -283,7 +286,7 @@ def bbox2file(net, im, thresh, savepath):
             line = ""
             #print line
             file.write(line)
-    file.close()
+            file.close()
 
 def visual_output(net, im, thresh):
     confidence, bboxes = im_detect(net, im)
@@ -316,8 +319,8 @@ def recursive_prediction(net, root_folder, filetype, thresh, feature):
         	if filetype == 'img':
         		image_prediction(net, f, thresh)
         	elif feature != '':
-                save_feature(net, f, thresh)
-            else:
+                        save_feature(net, f, thresh)
+                else:
         		video_prediction(net, f, thresh)
         else:
             print f + "is not existed"
