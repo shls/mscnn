@@ -83,6 +83,7 @@ def parse_args():
     parser.add_argument('--with_recursive', dest='recursive', help='recursively testing', action='store_true')
     parser.add_argument('--no_recursive', dest='recursive', help='recursively testing', action='store_false')
     parser.set_defaults(recursive=False)
+    parser.add_argument('--feature', dest='feature', help='extract feature and save it', default='', type=str)
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -202,6 +203,41 @@ def nms(dets, thresh):
    
     return gpu_nms(new_dets, thresh, device_id=GPU_ID)
 
+def extract_feature(net, im, conv_list, target_size= (960, 720)):
+    orgH, orgW, _ = im.shape
+    ratios = (target_size[0]/orgW, (target_size[1]/orgH ))
+    im = im_normalize(im, target_size)
+    
+    #Feedforward
+    net.blobs['data'].data[...] = im 
+    output = net.forward()
+
+    for conv in conv_list:
+        feature_list.append(output[conv])
+
+    return feature_list
+
+def save_feature(net, video_name, thresh):
+    conv_list = ['conv4_3', 'conv5_3', 'conv6_1']
+    vidcap = cv2.VideoCapture(video_name)
+    success,im = vidcap.read()
+    print video_name
+    index = 0
+
+    while success: 
+        filename = os.path.splitext(os.path.basename(video_name))[0]
+        
+        for conv in conv_list:
+            if not os.path.exists(os.path.join("/home/ls/dataset/", conv, filename))
+                os.makedirs(os.path.join("/home/ls/dataset/", conv, filename))
+
+        feature_list = extract_feature(net, im, conv_list)
+        index += 1
+        for i in len(conv_list):
+            np.save(os.path.join("/home/ls/dataset/", conv, filename,"/" + "mix_" + filename + "." + str(index).zfill(4) + ".txt"), np.asarray(feature_list[i]))
+
+        success,im = vidcap.read() 
+
 def video_prediction(net, video_name, thresh):
     vidcap = cv2.VideoCapture(video_name)
     success,im = vidcap.read()
@@ -273,13 +309,15 @@ def visual_output(net, im, thresh):
 
 
 
-def recursive_prediction(net, root_folder, filetype, thresh):
+def recursive_prediction(net, root_folder, filetype, thresh, feature):
     for f in sorted(os.listdir(root_folder)):
         f = os.path.join(root_folder, f)
         if (os.path.isfile(f)):
         	if filetype == 'img':
         		image_prediction(net, f, thresh)
-        	else:
+        	elif feature != '':
+                save_feature(net, f, thresh)
+            else:
         		video_prediction(net, f, thresh)
         else:
             print f + "is not existed"
@@ -299,6 +337,7 @@ if __name__ == "__main__":
     root_folder = args.root_folder
     video_name = args.video_name
     filetype = args.filetype
+    feature = args.feature
 
     if recursive and root_folder =='':
         print "Please specify root folder path"
@@ -312,7 +351,7 @@ if __name__ == "__main__":
     print("MC-CNN model loaded")
     # Detect the video
     if recursive:
-        recursive_prediction(net, root_folder, filetype, threshold)
+        recursive_prediction(net, root_folder, filetype, threshold, feature)
     else:
         video_prediction(net,args.video_name,threshold)
 
