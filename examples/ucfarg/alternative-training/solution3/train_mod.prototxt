@@ -1,0 +1,210 @@
+name: "MOD_AT3_CaffeNet"
+layer {
+  name: 'input-data'
+  type: 'Python'
+  top: 'spatial_data'
+  top: 'temporal_data'
+  top: 'spatial_rois'
+  top: 'temporal_rois'
+  top: 'label'
+  python_param {
+    module: 'mod.mod_data_alternative_s3'
+    layer: 'ModDataLayer_alternative_s3'
+  }
+  include {
+    phase: TRAIN
+  }
+}
+layer {
+  name: 'input-data'
+  type: 'Python'
+  top: 'spatial_data'
+  top: 'temporal_data'
+  top: 'spatial_rois'
+  top: 'temporal_rois'
+  top: 'label'
+  python_param {
+    module: 'mod.mod_data_alternative_s3'
+    layer: 'ModDataLayer_alternative_s3'
+  }
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "roi_pool_spatial"
+  type: "ROIPooling"
+  bottom: "spatial_data"
+  bottom: "temporal_rois"
+  top: "roi_pool_spatial"
+  roi_pooling_param {
+    pooled_w: 64
+    pooled_h: 64
+    spatial_scale: 0.167 # 1/1
+  }
+}
+layer {
+  name: "roi_pool_temporal"
+  type: "ROIPooling"
+  bottom: "temporal_data"
+  bottom: "temporal_rois"
+  top: "roi_pool_temporal"
+  roi_pooling_param {
+    pooled_w: 64
+    pooled_h: 64
+    spatial_scale: 0.125 # 1/1
+  }
+}
+layer {
+  name: "conv7"
+  type: "Convolution"
+  bottom: "roi_pool_temporal"
+  top: "conv7"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    stride: 1
+  }
+}
+
+layer {
+  name: "relu7"
+  type: "ReLU"
+  bottom: "conv7"
+  top: "conv7"
+}
+layer {
+  name: "norm7"
+  type: "LRN"
+  bottom: "conv7"
+  top: "norm7"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv8"
+  type: "Convolution"
+  bottom: "norm7"
+  top: "conv8"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+    stride: 1
+  }
+}
+layer {
+  name: "relu8"
+  type: "ReLU"
+  bottom: "conv8"
+  top: "conv8"
+}
+
+layer {
+  name: "norm8"
+  type: "LRN"
+  bottom: "conv8"
+  top: "norm8"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "concat_data"
+  bottom: "roi_pool_spatial"
+  bottom: "norm8"
+  top: "concat_data"
+  type: "Concat"
+  concat_param {
+    axis: 1
+  }
+}
+layer {
+  name: "conv9"
+  type: "Convolution"
+  bottom: "concat_data"
+  top: "conv9"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 512
+    pad: 2
+    kernel_size: 5
+    stride: 1
+  }
+}
+layer {
+  name: "relu9"
+  type: "ReLU"
+  bottom: "conv9"
+  top: "conv9"
+}
+layer {
+  name: "pool9"
+  type: "Pooling"
+  bottom: "conv9"
+  top: "pool9"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fc9"
+  type: "InnerProduct"
+  bottom: "pool9"
+  top: "fc9"
+  param {
+    lr_mult: 1
+    decay_mult: 250
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 11
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc9"
+  bottom: "label_reshape"
+  top: "loss"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc9"
+  bottom: "label_reshape"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
