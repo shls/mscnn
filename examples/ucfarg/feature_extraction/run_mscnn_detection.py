@@ -231,13 +231,13 @@ def save_feature(net, video_name, thresh):
         filename = os.path.splitext(os.path.basename(video_name))[0]
         
         for conv in conv_list:
-            if not os.path.exists(os.path.join("/home/ls/dataset/", conv, filename)):
-                os.makedirs(os.path.join("/home/ls/dataset/", conv, filename))
+            if not os.path.exists(os.path.join("/mnt/hdd2/ls/", conv, filename)):
+                os.makedirs(os.path.join("/mnt/hdd2/ls/", conv, filename))
 
         feature_list = extract_feature(net, im, conv_list)
 
         for i in xrange(len(conv_list)):
-            np.save(os.path.join("/home/ls/dataset/", conv_list[i], filename, "mix_" + filename + "." + str(index).zfill(4)), feature_list[i])
+            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], filename, "mix_" + filename + "." + str(index).zfill(4)), feature_list[i])
         index += 1
         success,im = vidcap.read() 
 
