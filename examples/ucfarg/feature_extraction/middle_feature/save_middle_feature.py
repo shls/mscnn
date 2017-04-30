@@ -20,6 +20,7 @@ from scipy.misc import imread
 caffe_root = '/home/ls/mscnn/'
 sys.path.insert(0, caffe_root + "install/python")
 sys.path.insert(0, caffe_root + "lib")
+sys.path.insert(0, caffe_root + "lib/mod")
 import caffe
 from nms.gpu_nms import gpu_nms
 from ucfarg_cfg import ucfarg_cfg
@@ -31,7 +32,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description='Test a MSCNN network')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU id to use',
-                        default=2, type=int)
+                        default=1, type=int)
     parser.add_argument('--net', dest='prototxt',
                         help='prototxt file defining the network',
                         default='/home/ls/mscnn/examples/ucfarg/feature_extraction/middle_feature/save_feature.prototxt', type=str)
@@ -57,10 +58,6 @@ def parse_args():
     parser.add_argument('--no_recursive', dest='recursive', help='recursively testing', action='store_false')
     parser.set_defaults(recursive=False)
     parser.add_argument('--feature', dest='feature', help='extract feature and save it', default='', type=str)
-
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
 
     args = parser.parse_args()
     return args
@@ -111,10 +108,10 @@ if __name__ == "__main__":
         output = net.forward()
 
         conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1']
-        for conv in conv_list:
+        for i in xrange(len(conv_list)):
             if not os.path.exists(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index))):
                 os.makedirs(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index)))
-            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv]) 
+            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv_list[i]]) 
 
     print "training set already saved"
 
@@ -150,10 +147,10 @@ if __name__ == "__main__":
         output = net.forward()
 
         conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1']
-        for conv in conv_list:
+        for i in xrange(len(conv_list)):
             if not os.path.exists(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index))):
                 os.makedirs(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index)))
-            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv]) 
+            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv_list[i]]) 
 
     print "Testing set already saved"
 

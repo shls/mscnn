@@ -1,13 +1,10 @@
 name: "MSCNN"
 input: "data"
-input_dim: 1
-input_dim: 3
-input_dim: 720
-input_dim: 960
+input_shape { dim: 1 dim: 3 dim: 720 dim: 960 }
 input: "label"
-input_dim: 1
+input_shape { dim: 1 }
 input: "clip_id"
-input_dim: 1
+input_shape { dim: 1 }
 layer {
   bottom: "data"
   top: "conv1_1"
