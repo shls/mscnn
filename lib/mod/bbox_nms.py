@@ -119,8 +119,12 @@ class BboxNMSLayer(caffe.Layer):
 					if len(self.mhi_buf) != 30:
 						self.mhi_buf.append(boxes_nms_xyxy)
 						self.cur_buf_id += 1
-						blob_rois = np.concatenate((blob_rois, np.array([[batch_idx,0,0,128,128],])))
-						blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
+						if len(blob_rois) == 1 and np.count_nonzero(blob_rois) == 0:
+							blob_rois[0,:] = np.array([batch_idx,0,0,128,128])
+							blob_label[0,0,0,0] = 0
+						else:
+							blob_rois = np.concatenate((blob_rois, np.array([[batch_idx,0,0,128,128],])))
+							blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 					else:
 						for i in reversed(xrange(self.cur_buf_id)):
 							boxes_nms_xyxy = comp_bbox(boxes_nms_xyxy, self.mhi_buf[i])
@@ -137,8 +141,12 @@ class BboxNMSLayer(caffe.Layer):
 
 						#Compensate for batch index
 						boxes_nms_xyxy = np.insert(boxes_nms_xyxy,0,batch_idx,axis=1)
-						blob_rois = np.concatenate((blob_rois, boxes_nms_xyxy))
-						blob_label = np.concatenate((blob_label, np.full((len(boxes_nms_xyxy),1,1,1), labels[batch_idx], dtype=np.float32)))
+						if len(blob_rois) == 1 and np.count_nonzero(blob_rois) == 0:
+							blob_rois[0,:] = np.array([batch_idx,0,0,128,128])
+							blob_label[0,0,0,0] = 0
+						else:
+							blob_rois = np.concatenate((blob_rois, boxes_nms_xyxy))
+							blob_label = np.concatenate((blob_label, np.full((len(boxes_nms_xyxy),1,1,1), labels[batch_idx], dtype=np.float32)))
 
 				else:
 					if len(self.mhi_buf) == 30:
@@ -154,8 +162,12 @@ class BboxNMSLayer(caffe.Layer):
 						self.cur_buf_id += 1
 					else:
 						pass
-					blob_rois = np.concatenate((blob_rois, np.array([[batch_idx,0,0,128,128],])))
-					blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
+					if len(blob_rois) == 1 and np.count_nonzero(blob_rois) == 0:
+						blob_rois[0,:] = np.array([batch_idx,0,0,128,128])
+						blob_label[0,0,0,0] = 0
+					else:
+						blob_rois = np.concatenate((blob_rois, np.array([[batch_idx,0,0,128,128],])))
+						blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 
 		top[0].reshape(*(blob_rois.shape))
 		top[0].data[...] = blob_rois.astype(np.float32, copy=False)
