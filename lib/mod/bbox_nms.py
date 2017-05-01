@@ -141,17 +141,13 @@ class BboxNMSLayer(caffe.Layer):
 
 						#Compensate for batch index
 						boxes_nms_xyxy = np.insert(boxes_nms_xyxy,0,batch_idx,axis=1)
+
 						if len(blob_rois) == 1 and np.count_nonzero(blob_rois) == 0:
-							if len(boxes_nms_xyxy) == 1:
-								blob_rois[0,:] = boxes_nms_xyxy
-								blob_label[0,0,0,0] = np.full((len(boxes_nms_xyxy),1,1,1), labels[batch_idx], dtype=np.float32)
-							else:
-								blob_rois[0,:] = boxes_nms_xyxy[0][:]
+							blob_rois[0,:] = boxes_nms_xyxy[0][:]
+							blob_label[0,0,0,0] = np.full((1,1,1,1), labels[batch_idx], dtype=np.float32)
+							if boxes_nms_xyxy.shape[0] > 1:
 								blob_rois = np.concatenate((blob_rois, boxes_nms_xyxy[1:]))
-
-								blob_label[0,0,0,0] = np.full((1,1,1,1), labels[batch_idx], dtype=np.float32)
 								blob_label = np.concatenate((blob_label, np.full((len(boxes_nms_xyxy)-1,1,1,1), labels[batch_idx], dtype=np.float32)))
-
 						else:
 							blob_rois = np.concatenate((blob_rois, boxes_nms_xyxy))
 							blob_label = np.concatenate((blob_label, np.full((len(boxes_nms_xyxy),1,1,1), labels[batch_idx], dtype=np.float32)))

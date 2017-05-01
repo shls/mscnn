@@ -109,8 +109,12 @@ class ModDataLayer_alternative(caffe.Layer):
 					if len(self._bboxes_buf) != 30:
 						self._bboxes_buf.append(bboxes)
 						self._cur_buf += 1
-						blob_rois = np.concatenate((blob_rois, np.array([[batch_index,0,0,128,128],])))
-						blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
+						if len(blob_rois) == 1 and np.count_nonzero(blob_rois) == 0:
+							blob_rois[0,:] = np.array([batch_index,0,0,128,128])
+							blob_label[0,0,0,0] = 0
+						else:
+							blob_rois = np.concatenate((blob_rois, np.array([[batch_index,0,0,128,128],])))
+							blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 					else:
 						for i in reversed(xrange(self._cur_buf)):
 							bboxes = comp_bbox(np.asarray(bboxes), np.asarray(self._bboxes_buf[i]))
@@ -127,9 +131,16 @@ class ModDataLayer_alternative(caffe.Layer):
 
 						#Compensate for batch index
 						bboxes = np.insert(bboxes,0,batch_index,axis=1)
-						
-						blob_rois = np.concatenate((blob_rois, bboxes))
-						blob_label = np.concatenate((blob_label, np.full((len(bboxes),1,1,1), label)))
+
+						if len(blob_rois) == 1 and np.count_nonzero(blob_rois) == 0:
+							blob_rois[0,:] = bboxes[0][:]
+							blob_label[0,0,0,0] = np.full((1,1,1,1), label)
+							if len(bboxes) > 1:
+								blob_rois = np.concatenate((blob_rois, bboxes[1:]))
+								blob_label = np.concatenate((blob_label, np.full((len(bboxes)-1,1,1,1), label)))
+						else:
+							blob_rois = np.concatenate((blob_rois, bboxes))
+							blob_label = np.concatenate((blob_label, np.full((len(bboxes),1,1,1), label)))
 
 				else:
 					if len(self._bboxes_buf) == 30:
@@ -145,8 +156,12 @@ class ModDataLayer_alternative(caffe.Layer):
 						self._cur_buf += 1
 					else: # not the first image, but buf is still empty, the new bbox is empty
 						pass
-					blob_rois = np.concatenate((blob_rois, np.array([[batch_index,0,0,128,128],])))
-					blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
+					if len(blob_rois) == 1 and np.count_nonzero(blob_rois) == 0:
+						blob_rois[0,:] = np.array([batch_index,0,0,128,128])
+						blob_label[0,0,0,0] = 0
+					else:
+						blob_rois = np.concatenate((blob_rois, np.array([[batch_index,0,0,128,128],])))
+						blob_label = np.concatenate((blob_label,np.array([[[[0]]]])))
 
 			self._cur_img += 1
 

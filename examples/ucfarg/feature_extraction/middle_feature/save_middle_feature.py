@@ -107,11 +107,14 @@ if __name__ == "__main__":
         net.blobs['clip_id'].data[...] = clip_id
         output = net.forward()
 
+        print net.blobs["bbox_nms"].data[0]
+
         conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1']
         for i in xrange(len(conv_list)):
-            if not os.path.exists(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index))):
-                os.makedirs(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index)))
-            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv_list[i]]) 
+            print output[conv_list[i]].shape
+            # if not os.path.exists(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index))):
+            #     os.makedirs(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index)))
+            # np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv_list[i]]) 
 
     print "training set already saved"
 
