@@ -5,7 +5,7 @@ from ucfarg_cfg import ucfarg_cfg
 from bbox_cal import nms, box_iou, center_distance, comp_bbox, bbox_denormalize, filter_proposals, get_confidence
 import lmdb
 import mod_pb2
-import timer
+import time
 import caffe, json
 
 
@@ -24,7 +24,6 @@ class ModDataLayer_alter_s1_lmdb(caffe.Layer):
 			self._mean_4 = ucfarg_cfg.TRAIN.MEAN_4
 		else:
 			# Setup ModDataLayer
-			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TEST.LIST_FILE)]
 			self._imgs_per_batch = ucfarg_cfg.TEST.IMS_PER_BATCH
 			self._lmdb = lmdb.open(ucfarg_cfg.TEST.TESTLMDB)
 			self._mix_channels = ucfarg_cfg.TEST.MIX_CHANNELS
@@ -44,11 +43,11 @@ class ModDataLayer_alter_s1_lmdb(caffe.Layer):
 
 	def forward(self, bottom, top):
 
-		start = time.time()
+		# start = time.time()
 
 		# Init result blob
 		blob_mix_im = np.zeros((self._imgs_per_batch, self._mix_channels, self._org_h, self._org_w), dtype=np.float32)
-		blob_rois = np.zeros((1,5), dtype=np.float32)
+		blob_rois = np.zeros((1,5), dtype=np.uint8)
 		blob_label = np.zeros((1,1,1,1), dtype=np.int)
 		lmdb_begin = self._lmdb.begin()
 
@@ -62,7 +61,8 @@ class ModDataLayer_alter_s1_lmdb(caffe.Layer):
 			datum.ParseFromString(raw_datum)
 
 			# Get mix img and feed it into blob
-			mix_im = np.fromstring(datum.data, dtype=np.float32)
+			mix_im = np.fromstring(datum.data, dtype=np.uint8)
+			mix_im = mix_im.reshape(datum.channels, datum.height, datum.width).astype(np.float32)
 			mix_im -= self._mean_4
 			mix_im = mix_im.transpose((2,0,1))
 			blob_mix_im[batch_index, :, :, :] = mix_im
@@ -86,9 +86,9 @@ class ModDataLayer_alter_s1_lmdb(caffe.Layer):
 			else:
 				pass
 
-			end = time.time()
-			print "Time eclapsed for data loading: ", end - start, " s" 
-			start = end
+			# end = time.time()
+			# print "Time eclapsed for data loading: ", end - start, " s" 
+			# start = end
 
 
 			if self._last_img_id != img_id:
@@ -166,8 +166,8 @@ class ModDataLayer_alter_s1_lmdb(caffe.Layer):
 
 			self._cur_img += 1
 		
-		end = time.time()
-		print "Time eclapsed for bbox caculation: ", end - start, " s" 
+		# end = time.time()
+		# print "Time eclapsed for bbox caculation: ", end - start, " s" 
 		
 		top[0].reshape(*(blob_mix_im.shape))
 		top[0].data[...] = blob_mix_im.astype(np.float32, copy=False)
