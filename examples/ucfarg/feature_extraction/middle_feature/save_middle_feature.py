@@ -82,8 +82,10 @@ if __name__ == "__main__":
     _target_h = ucfarg_cfg.TRAIN.TARGET_H
     _target_w = ucfarg_cfg.TRAIN.TARGET_W
     _mean_3 = ucfarg_cfg.TRAIN.MEAN_3
+    _mean_1 = ucfarg_cfg.TRAIN.MEAN_1
     _label_root = ucfarg_cfg.TRAIN.LABEL_ROOT
     _label_extension = ucfarg_cfg.TRAIN.LABEL_EXTENSION
+    _save_path = "/home/ls/dataset"
 
     for index in _indexlist:
 
@@ -92,6 +94,11 @@ if __name__ == "__main__":
         spatial_im = cv2.resize(spatial_im, (_target_w, _target_h)).astype(np.float32)
         spatial_im -= _mean_3
         spatial_im = spatial_im.transpose((2,0,1))
+
+        temporal_im = np.asarray(mix_im[:,:,-1])
+        temporal_im -= _mean_1
+        temporal_im = np.expand_dims(temporal, axis=2).astype(np.float32)
+        temporal_im = temporal_im.transpose((2,0,1))
 
         label_file = os.path.join(_label_root, index + _label_extension)
         assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
@@ -103,19 +110,21 @@ if __name__ == "__main__":
         clip_id = int(label_data.split()[1])        
         
         net.blobs['data'].data[...] = spatial_im
+        net.blobs['mhi'].data[...] = temporal_im
         net.blobs['label'].data[...] = label
         net.blobs['clip_id'].data[...] = clip_id
         output = net.forward()
 
-        print "Boxes: ", index, " ", net.blobs["bbox_nms"].data[0]
+        # print "Boxes: ", index, " ", net.blobs["bbox_nms"].data[0]
 
-        # conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1']
-        conv_list = ['roi_pool_spatial_conv4_3']
+        # conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1', 'roi_pool_temporal_raw']
+        conv_list = ['roi_pool_temporal_raw']
+
         for i in xrange(len(conv_list)):
             # print output[conv_list[i]].shape
-            if not os.path.exists(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index))):
-                os.makedirs(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index)))
-            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv_list[i]])
+            if not os.path.exists(os.path.join(_save_path, conv_list[i], os.path.dirname(index))):
+                os.makedirs(os.path.join(_save_path, conv_list[i], os.path.dirname(index)))
+            np.save(os.path.join(_save_path, conv_list[i], index + ".npy"), output[conv_list[i]])
 
     print "training set already saved"
 
@@ -136,6 +145,11 @@ if __name__ == "__main__":
         spatial_im -= _mean_3
         spatial_im = spatial_im.transpose((2,0,1))
 
+        temporal_im = np.asarray(mix_im[:,:,-1])
+        temporal_im -= _mean_1
+        temporal_im = np.expand_dims(temporal, axis=2).astype(np.float32)
+        temporal_im = temporal_im.transpose((2,0,1))
+
         label_file = os.path.join(_label_root, index + _label_extension)
         assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
 
@@ -146,16 +160,18 @@ if __name__ == "__main__":
         clip_id = int(label_data.split()[1])        
         
         net.blobs['data'].data[...] = spatial_im
+        net.blobs['mhi'].data[...] = temporal_im
         net.blobs['label'].data[...] = label
         net.blobs['clip_id'].data[...] = clip_id
         output = net.forward()
 
-        # conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1']
-        conv_list = ['roi_pool_spatial_conv4_3']
+        # conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1', 'roi_pool_temporal_raw']
+        conv_list = ['roi_pool_temporal_raw']
+
         for i in xrange(len(conv_list)):
-            if not os.path.exists(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index))):
-                os.makedirs(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index)))
-            np.save(os.path.join("/mnt/hdd2/ls/", conv_list[i], index + ".npy"), output[conv_list[i]]) 
+            if not os.path.exists(os.path.join(_save_path, conv_list[i], os.path.dirname(index))):
+                os.makedirs(os.path.join(_save_path, conv_list[i], os.path.dirname(index)))
+            np.save(os.path.join(_save_path, conv_list[i], index + ".npy"), output[conv_list[i]]) 
 
     print "Testing set already saved"
 
