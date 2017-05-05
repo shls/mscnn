@@ -95,9 +95,9 @@ if __name__ == "__main__":
         spatial_im -= _mean_3
         spatial_im = spatial_im.transpose((2,0,1))
 
-        temporal_im = np.asarray(mix_im[:,:,-1])
+        temporal_im = np.asarray(mix_im[:,:,-1]).astype(np.float32)
         temporal_im -= _mean_1
-        temporal_im = np.expand_dims(temporal, axis=2).astype(np.float32)
+        temporal_im = np.expand_dims(temporal_im, axis=2).astype(np.float32)
         temporal_im = temporal_im.transpose((2,0,1))
 
         label_file = os.path.join(_label_root, index + _label_extension)
@@ -145,9 +145,9 @@ if __name__ == "__main__":
         spatial_im -= _mean_3
         spatial_im = spatial_im.transpose((2,0,1))
 
-        temporal_im = np.asarray(mix_im[:,:,-1])
+        temporal_im = np.asarray(mix_im[:,:,-1]).astype(np.float32)
         temporal_im -= _mean_1
-        temporal_im = np.expand_dims(temporal, axis=2).astype(np.float32)
+        temporal_im = np.expand_dims(temporal_im, axis=2).astype(np.float32)
         temporal_im = temporal_im.transpose((2,0,1))
 
         label_file = os.path.join(_label_root, index + _label_extension)
