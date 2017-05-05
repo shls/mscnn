@@ -150,7 +150,8 @@ if __name__ == "__main__":
         net.blobs['clip_id'].data[...] = clip_id
         output = net.forward()
 
-        conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1']
+        # conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1']
+        conv_list = ['roi_pool_spatial_conv4_3']
         for i in xrange(len(conv_list)):
             if not os.path.exists(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index))):
                 os.makedirs(os.path.join("/mnt/hdd2/ls", conv_list[i], os.path.dirname(index)))
