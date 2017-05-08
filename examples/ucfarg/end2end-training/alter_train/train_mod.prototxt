@@ -1,0 +1,184 @@
+name: "mod_MSCNN"
+layer {
+  name: 'input-data'
+  type: 'Python'
+  top: 'roi_pool_spatial_con4_3'
+  top: 'roi_pool_temporal_raw'
+  top: 'label_reshape'
+  python_param {
+    module: 'mod.mod_data_e2e_alter'
+    layer: 'ModDataLayerE2EAlter'
+  }
+  include {
+    phase: TRAIN
+  }
+}
+layer {
+  name: 'input-data'
+  type: 'Python'
+  top: 'roi_pool_spatial_con4_3'
+  top: 'roi_pool_temporal_raw'
+  top: 'label_reshape'
+  python_param {
+    module: 'mod.mod_data_e2e_alter'
+    layer: 'ModDataLayerE2EAlter'
+  }
+  include {
+    phase: TEST
+  }
+}
+
+layer {
+  name: "conv7"
+  type: "Convolution"
+  bottom: "roi_pool_temporal_raw"
+  top: "conv7"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    stride: 1
+  }
+}
+
+layer {
+  name: "relu7"
+  type: "ReLU"
+  bottom: "conv7"
+  top: "conv7"
+}
+layer {
+  name: "norm7"
+  type: "LRN"
+  bottom: "conv7"
+  top: "norm7"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv8"
+  type: "Convolution"
+  bottom: "norm7"
+  top: "conv8"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+    stride: 1
+  }
+}
+layer {
+  name: "relu8"
+  type: "ReLU"
+  bottom: "conv8"
+  top: "conv8"
+}
+
+layer {
+  name: "norm8"
+  type: "LRN"
+  bottom: "conv8"
+  top: "norm8"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "eltwise_data"
+  bottom: "roi_pool_spatial_con4_3"
+  bottom: "norm8"
+  top: "eltwise_data"
+  type: "Eltwise"
+  eltwise_param{
+    operation: SUM
+  }
+}
+layer {
+  name: "conv9"
+  type: "Convolution"
+  bottom: "eltwise_data"
+  top: "conv9"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 512
+    pad: 2
+    kernel_size: 5
+    stride: 1
+  }
+}
+layer {
+  name: "relu9"
+  type: "ReLU"
+  bottom: "conv9"
+  top: "conv9"
+}
+layer {
+  name: "pool9"
+  type: "Pooling"
+  bottom: "conv9"
+  top: "pool9"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fc9"
+  type: "InnerProduct"
+  bottom: "pool9"
+  top: "fc9"
+  param {
+    lr_mult: 1
+    decay_mult: 250
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 11
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc9"
+  bottom: "label_reshape"
+  top: "loss"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc9"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+  
