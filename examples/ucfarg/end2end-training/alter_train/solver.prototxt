@@ -1,6 +1,6 @@
 net: "/home/ls/mscnn/examples/ucfarg/end2end-training/alter_train/train_mod.prototxt"
-test_iter: 32
-test_interval: 750
+test_iter: 654
+test_interval: 5000
 # lr for fine-tuning should be lower than when starting from scratch
 base_lr: 0.0001
 lr_policy: "step"

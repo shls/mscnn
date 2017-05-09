@@ -5,6 +5,7 @@ layer {
   top: 'roi_pool_spatial_con4_3'
   top: 'roi_pool_temporal_raw'
   top: 'label_reshape'
+  top: 'batch_index'
   python_param {
     module: 'mod.mod_data_e2e_alter'
     layer: 'ModDataLayerE2EAlter'
@@ -19,6 +20,7 @@ layer {
   top: 'roi_pool_spatial_con4_3'
   top: 'roi_pool_temporal_raw'
   top: 'label_reshape'
+  top: 'batch_index'
   python_param {
     module: 'mod.mod_data_e2e_alter'
     layer: 'ModDataLayerE2EAlter'
@@ -175,7 +177,7 @@ layer {
   name: "accuracy"
   type: "Accuracy"
   bottom: "fc9"
-  bottom: "label"
+  bottom: "label_reshape"
   top: "accuracy"
   include {
     phase: TEST

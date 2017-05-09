@@ -31,7 +31,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 			roi_pool_temporal_raw = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, index + self._data_extension)))
 			label_reshape = np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension)))
 
-			blob_spatial_fm = np.concatenate((blob_spatial_fm,roi_pool_spatial_con4_3), axis=0)
+			blob_spatial_fm = np.concatenate((blob_spatial_fm,roi_pool_conv4_3), axis=0)
 			blob_temporal_fm = np.concatenate((blob_temporal_fm,roi_pool_temporal_raw), axis=0)
 			blob_label = np.concatenate((blob_label,label_reshape),axis=0)
 			blob_index = np.concatenate((blob_index,np.asarray([len(label_reshape)])))
@@ -49,7 +49,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 		if (self.phase == caffe.TRAIN):
 			# Setup ModDataLayer
 			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TRAIN.LIST_FILE)]
-			self._imgs_per_batch = ucfarg_cfg.TRAIN.END2END_IMS_PER_BATCH
+			self._imgs_per_batch = ucfarg_cfg.TRAIN.E2E_ALTER_IMS_PER_BATCH
 			self._data_extension = ucfarg_cfg.TRAIN.DATA_EXTENSION
 			self._spatial_prefeature_root = ucfarg_cfg.TRAIN.SPATIAL_PREFEATURE_ROOT
 			self._spatial_prefeature_width = ucfarg_cfg.TRAIN.SPATIAL_PREFEATURE_WIDTH
@@ -64,7 +64,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 		else:
 			# Setup ModDataLayer
 			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TEST.LIST_FILE)]
-			self._imgs_per_batch = ucfarg_cfg.TEST.END2END_IMS_PER_BATCH
+			self._imgs_per_batch = ucfarg_cfg.TEST.E2E_ALTER_IMS_PER_BATCH
 			self._data_extension = ucfarg_cfg.TEST.DATA_EXTENSION
 			self._spatial_prefeature_root = ucfarg_cfg.TEST.SPATIAL_PREFEATURE_ROOT
 			self._spatial_prefeature_width = ucfarg_cfg.TEST.SPATIAL_PREFEATURE_WIDTH
@@ -91,7 +91,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 		self._name_to_top_map['label_reshape'] = idx
 		idx += 1
 
-		top[idx].reshape(0)
+		top[idx].reshape(1)
 		self._name_to_top_map['batch_index'] = idx
 		idx += 1
 
