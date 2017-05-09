@@ -10,11 +10,11 @@ class ModDataLayerE2EAlter(caffe.Layer):
 	# """docstring for ModDataLayer"""
 
 
-	def _load_data(self, spatial_fm, temporal_fm, label, b_index, index, count, batch_id):
+	def _load_data(self, spatial_fm, temporal_fm, label, b_index, index, count, batch_id, filename):
 		for i in xrange(count):
-			spatial_fm[index+i] = np.asarray(np.load(os.path.join(self._spatial_prefeature_root, index + self._data_extension)))[i][:]
-			temporal_fm[index+i] = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, index + self._data_extension)))[i][:]
-			label[index+i] = np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension)))[i][:]
+			spatial_fm[index+i] = np.asarray(np.load(os.path.join(self._spatial_prefeature_root, filename + self._data_extension)))[i][:]
+			temporal_fm[index+i] = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, filename + self._data_extension)))[i][:]
+			label[index+i] = np.asarray(np.load(os.path.join(self._label_prefeature_root, filename + self._data_extension)))[i][:]
 			b_index[index+i] = np.asarray([batch_id])
 
 	def _get_count(self, results, index, id):
@@ -27,9 +27,9 @@ class ModDataLayerE2EAlter(caffe.Layer):
 	# If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
 	# separate process and made available through self._blob_queue.
 	# """
-		count_batch_bbox = [self._imgs_per_batch]
-		batch_index_bbox = [self._imgs_per_batch]
-		count_thread_list = [self._imgs_per_batch]
+		count_batch_bbox = [None] * self._imgs_per_batch
+		batch_index_bbox = [None] * self._imgs_per_batch
+		count_thread_list = []
 		cur_index = self._cur
 
 		for i in xrange(self._imgs_per_batch):
@@ -42,7 +42,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 			cur_index += 1
 
 		for thread in count_thread_list:
-			thread.shart()
+			thread.start()
 
 		for thread in count_thread_list:
 			thread.join()
@@ -50,8 +50,8 @@ class ModDataLayerE2EAlter(caffe.Layer):
 		total_batch = sum(count_batch_bbox)
 
 
-		for i in xrange(self._imgs_per_batch)
-			batch_index_bbox = sum(count_batch_bbox[0:i+1]) - 1
+		for i in xrange(self._imgs_per_batch):
+			batch_index_bbox[i] = sum(count_batch_bbox[0:i+1]) - 1
 
 		blob_spatial_fm = np.zeros((total_batch, self._spatial_prefeature_channels,self._spatial_prefeature_height,self._spatial_prefeature_width), dtype=np.float32)
 		blob_temporal_fm = np.zeros((total_batch, self._temporal_prefeature_channels,self._temporal_prefeature_height, self._temporal_prefeature_width), dtype=np.float32)
@@ -69,7 +69,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 			# roi_pool_conv4_3 = np.asarray(np.load(os.path.join(self._spatial_prefeature_root, index + self._data_extension)))
 			# roi_pool_temporal_raw = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, index + self._data_extension)))
 			# label_reshape = np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension)))
-			data_thread = threading.Thread(target=self._load_data, args=(blob_spatial_fm, blob_temporal_fm, blob_label, blob_index, batch_index_bbox[batch_index], count_batch_bbox[batch_index], batch_index))
+			data_thread = threading.Thread(target=self._load_data, args=(blob_spatial_fm, blob_temporal_fm, blob_label, blob_index, batch_index_bbox[batch_index], count_batch_bbox[batch_index], batch_index, index))
 			thread_list.append(data_thread)
 			self._cur += 1
 
@@ -160,10 +160,10 @@ class ModDataLayerE2EAlter(caffe.Layer):
 
 	def forward(self, bottom, top):
 
-		start = time.time()
+		# start = time.time()
 		blobs = self._get_next_batch()
-		end = time.time()
-		print "Time eclapsed for data loading: ", end - start, " s" 
+		# end = time.time()
+		# print "Time eclapsed for data loading: ", end - start, " s" 
 
 		for blob_name, blob in blobs.iteritems():
 			top_ind = self._name_to_top_map[blob_name]
