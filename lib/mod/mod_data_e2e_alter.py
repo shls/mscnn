@@ -10,7 +10,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 	# """docstring for ModDataLayer"""
 
 
-	def _load_data(queue, index):
+	def _load_data(self, queue, index):
 		roi_pool_conv4_3 = np.asarray(np.load(os.path.join(self._spatial_prefeature_root, index + self._data_extension)))
 		roi_pool_temporal_raw = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, index + self._data_extension)))
 		label_reshape = np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension)))
@@ -39,22 +39,29 @@ class ModDataLayerE2EAlter(caffe.Layer):
 			# roi_pool_conv4_3 = np.asarray(np.load(os.path.join(self._spatial_prefeature_root, index + self._data_extension)))
 			# roi_pool_temporal_raw = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, index + self._data_extension)))
 			# label_reshape = np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension)))
-			data_thread = threading.Thread(target=_load_data, args=(queue,index))
+			data_thread = threading.Thread(target=self._load_data, args=(queue,index))
 			thread_list.append(data_thread)
 			self._cur += 1
 
 		for thread in thread_list:
 			thread.start()
-
+		
+		start = time.time()
 		for thread in thread_list:
 			thread.join()
 			roi_pool_conv4_3, roi_pool_temporal_raw, label_reshape = queue.get()
 
-			blob_spatial_fm = np.concatenate((blob_spatial_fm,roi_pool_conv4_3), axis=0)
-			blob_temporal_fm = np.concatenate((blob_temporal_fm,roi_pool_temporal_raw), axis=0)
-			blob_label = np.concatenate((blob_label,label_reshape),axis=0)
-			blob_index = np.concatenate((blob_index,np.full((len(label_reshape),1,1,1), batch_index)))
-
+			blob_spatial_fm = np.append(blob_spatial_fm,roi_pool_conv4_3, axis=0)
+#np.concatenate((blob_spatial_fm,roi_pool_conv4_3), axis=0)
+			blob_temporal_fm = np.append(blob_temporal_fm,roi_pool_temporal_raw, axis=0)
+#np.concatenate((blob_temporal_fm,roi_pool_temporal_raw), axis=0)
+			blob_label = np.append(blob_label,label_reshape,axis=0)
+#np.concatenate((blob_label,label_reshape),axis=0)
+			blob_index = np.append(blob_index,np.full((len(label_reshape)), batch_index),axis=0)
+#np.concatenate((blob_index,np.full((len(label_reshape)), batch_index)))
+		end = time.time()
+		print "Time eclapsed for data loading with thread: ", end - start, " s"
+		
 		print "blob_spatial_fm.shape", blob_spatial_fm.shape, "blob_temporal_fm.shape", blob_temporal_fm.shape, "blob_label.shape", blob_label.shape, "blob_index.shape", blob_index.shape
 		blobs = {'roi_pool_spatial_con4_3': blob_spatial_fm, 'roi_pool_temporal_raw': blob_temporal_fm, 'label_reshape': blob_label, 'batch_index': blob_index}
 		return blobs
