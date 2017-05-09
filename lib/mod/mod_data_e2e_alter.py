@@ -27,6 +27,8 @@ class ModDataLayerE2EAlter(caffe.Layer):
 	# If cfg.TRAIN.USE_PREFETCH is True, then blobs will be computed in a
 	# separate process and made available through self._blob_queue.
 	# """
+		start = time.time()
+
 		count_batch_bbox = [None] * self._imgs_per_batch
 		batch_index_bbox = [None] * self._imgs_per_batch
 		count_thread_list = []
@@ -52,6 +54,11 @@ class ModDataLayerE2EAlter(caffe.Layer):
 
 		for i in xrange(self._imgs_per_batch):
 			batch_index_bbox[i] = sum(count_batch_bbox[0:i+1]) - 1
+
+		end = time.time()
+		print "Time eclapsed for the first part: ", end - start, " s"
+
+		start = time.time()
 
 		blob_spatial_fm = np.zeros((total_batch, self._spatial_prefeature_channels,self._spatial_prefeature_height,self._spatial_prefeature_width), dtype=np.float32)
 		blob_temporal_fm = np.zeros((total_batch, self._temporal_prefeature_channels,self._temporal_prefeature_height, self._temporal_prefeature_width), dtype=np.float32)
@@ -79,25 +86,10 @@ class ModDataLayerE2EAlter(caffe.Layer):
  		for thread in thread_list:
  			thread.join()
 
+		end = time.time()
+		print "Time eclapsed for the second part: ", end - start, " s"
 
-		
-# 		start = time.time()
-# 		for thread in thread_list:
-# 			thread.join()
-# 			roi_pool_conv4_3, roi_pool_temporal_raw, label_reshape = queue.get()
-
-# 			blob_spatial_fm = np.append(blob_spatial_fm,roi_pool_conv4_3, axis=0)
-# #np.concatenate((blob_spatial_fm,roi_pool_conv4_3), axis=0)
-# 			blob_temporal_fm = np.append(blob_temporal_fm,roi_pool_temporal_raw, axis=0)
-# #np.concatenate((blob_temporal_fm,roi_pool_temporal_raw), axis=0)
-# 			blob_label = np.append(blob_label,label_reshape,axis=0)
-# #np.concatenate((blob_label,label_reshape),axis=0)
-# 			blob_index = np.append(blob_index,np.full((len(label_reshape)), batch_index),axis=0)
-# #np.concatenate((blob_index,np.full((len(label_reshape)), batch_index)))
-# 		end = time.time()
-# 		print "Time eclapsed for data loading with thread: ", end - start, " s"
-		
-		print "blob_spatial_fm.shape", blob_spatial_fm.shape, "blob_temporal_fm.shape", blob_temporal_fm.shape, "blob_label.shape", blob_label.shape, "blob_index.shape", blob_index.shape
+		# print "blob_spatial_fm.shape", blob_spatial_fm.shape, "blob_temporal_fm.shape", blob_temporal_fm.shape, "blob_label.shape", blob_label.shape, "blob_index.shape", blob_index.shape
 		blobs = {'roi_pool_spatial_con4_3': blob_spatial_fm, 'roi_pool_temporal_raw': blob_temporal_fm, 'label_reshape': blob_label, 'batch_index': blob_index}
 		return blobs
 
