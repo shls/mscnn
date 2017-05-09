@@ -76,15 +76,22 @@ class ModDataLayerE2EAlter(caffe.Layer):
 			# roi_pool_conv4_3 = np.asarray(np.load(os.path.join(self._spatial_prefeature_root, index + self._data_extension)))
 			# roi_pool_temporal_raw = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, index + self._data_extension)))
 			# label_reshape = np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension)))
-			data_thread = threading.Thread(target=self._load_data, args=(blob_spatial_fm, blob_temporal_fm, blob_label, blob_index, batch_index_bbox[batch_index], count_batch_bbox[batch_index], batch_index, index))
-			thread_list.append(data_thread)
-			self._cur += 1
+			for i in xrange(count_batch_bbox[batch_index]):
+				blob_spatial_fm[batch_index_bbox[batch_index] + i] = np.asarray(np.load(os.path.join(self._spatial_prefeature_root, index + self._data_extension)))[i][:]
+				blob_temporal_fm[batch_index_bbox[batch_index] + i] = np.asarray(np.load(os.path.join(self._temporal_prefeature_root, index + self._data_extension)))[i][:]
+				blob_label[batch_index_bbox[batch_index] + i] = np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension)))[i][:]
+				blob_index[batch_index_bbox[batch_index] + i] = np.asarray(batch_index)
 
-		for thread in thread_list:
-			thread.start()
+		# Fetch data in parallel 
+		# 	data_thread = threading.Thread(target=self._load_data, args=(blob_spatial_fm, blob_temporal_fm, blob_label, blob_index, batch_index_bbox[batch_index], count_batch_bbox[batch_index], batch_index, index))
+		# 	thread_list.append(data_thread)
+		# 	self._cur += 1
 
- 		for thread in thread_list:
- 			thread.join()
+		# for thread in thread_list:
+		# 	thread.start()
+
+ 	# 	for thread in thread_list:
+ 	# 		thread.join()
 
 		end = time.time()
 		print "Time eclapsed for the second part: ", end - start, " s"
