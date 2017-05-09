@@ -2,7 +2,7 @@ import numpy as np
 import os
 import cv2
 from ucfarg_cfg import ucfarg_cfg
-
+import time
 import caffe, json
 
 
@@ -100,8 +100,11 @@ class ModDataLayerE2EAlter(caffe.Layer):
 
 	def forward(self, bottom, top):
 
+		start = time.time()
 		blobs = self._get_next_batch()
-
+		end = time.time()
+		print "Time eclapsed for data loading: ", end - start, " s" 
+		
 		for blob_name, blob in blobs.iteritems():
 			top_ind = self._name_to_top_map[blob_name]
 			# Reshape net's input blobs
