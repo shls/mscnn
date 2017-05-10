@@ -53,7 +53,7 @@ class ModDataLayerE2EAlter(caffe.Layer):
 
 
 		for i in xrange(self._imgs_per_batch):
-			batch_index_bbox[i] = sum(count_batch_bbox[0:i+1]) - 1
+			batch_index_bbox[i] = sum(count_batch_bbox[:i])
 
 		# end = time.time()
 		# print "Time eclapsed for the first part: ", end - start, " s"
