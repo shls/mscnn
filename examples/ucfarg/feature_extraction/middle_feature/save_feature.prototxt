@@ -518,7 +518,7 @@ layer {
   roi_pooling_param {
     pooled_w: 64
     pooled_h: 64
-    spatial_scale: 0.167 # 1/1
+    spatial_scale: 0.125 # 1/1
   }
 }
 layer {
@@ -530,7 +530,7 @@ layer {
   roi_pooling_param {
     pooled_w: 64
     pooled_h: 64
-    spatial_scale: 0.167 # 1/1
+    spatial_scale: 0.0625 # 1/1
   }
 }
 layer {
@@ -542,7 +542,7 @@ layer {
   roi_pooling_param {
     pooled_w: 64
     pooled_h: 64
-    spatial_scale: 0.167 # 1/1
+    spatial_scale: 0.03125 # 1/1
   }
 }
 layer {
@@ -554,6 +554,6 @@ layer {
   roi_pooling_param {
     pooled_w: 64
     pooled_h: 64
-    spatial_scale: 0.125 # 1/1
+    spatial_scale: 1 # 1/1
   }
 }
