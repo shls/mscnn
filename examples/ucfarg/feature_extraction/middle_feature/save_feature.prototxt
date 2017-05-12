@@ -504,16 +504,17 @@ layer {
   bottom: "label"
   top: "bbox_nms"
   top: "label_reshape"
+  top: "bbox_nms_orgs"
   python_param {
-    module: 'mod.bbox_nms'
-    layer: 'BboxNMSLayer'
+    module: 'mod.bbox_nms_sf'
+    layer: 'BboxNMSLayerShareFeature'
   }
 }
 layer {
   name: "roi_pool_spatial_conv4_3"
   type: "ROIPooling"
   bottom: "conv4_3"
-  bottom: "bbox_nms"
+  bottom: "bbox_nms_orgs"
   top: "roi_pool_spatial_conv4_3"
   roi_pooling_param {
     pooled_w: 64
@@ -525,7 +526,7 @@ layer {
   name: "roi_pool_spatial_conv5_3"
   type: "ROIPooling"
   bottom: "conv5_3"
-  bottom: "bbox_nms"
+  bottom: "bbox_nms_orgs"
   top: "roi_pool_spatial_conv5_3"
   roi_pooling_param {
     pooled_w: 64
@@ -537,7 +538,7 @@ layer {
   name: "roi_pool_spatial_conv6_1"
   type: "ROIPooling"
   bottom: "conv6_1"
-  bottom: "bbox_nms"
+  bottom: "bbox_nms_orgs"
   top: "roi_pool_spatial_conv6_1"
   roi_pooling_param {
     pooled_w: 64
