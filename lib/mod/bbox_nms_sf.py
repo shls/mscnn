@@ -26,6 +26,7 @@ class BboxNMSLayerShareFeature(caffe.Layer):
 
 		top[0].reshape(1,5)
 		top[1].reshape(1)
+		top[2].reshape(1,5)
 
 	def forward(self, bottom, top):
 

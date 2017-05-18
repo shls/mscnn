@@ -29,96 +29,11 @@ layer {
     phase: TEST
   }
 }
-
 layer {
-  name: "conv7"
+  name: "conv0_0"
   type: "Convolution"
-  bottom: "roi_pool_temporal_raw"
-  top: "conv7"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
-  convolution_param {
-    num_output: 256
-    pad: 1
-    kernel_size: 3
-    stride: 1
-  }
-}
-
-layer {
-  name: "relu7"
-  type: "ReLU"
-  bottom: "conv7"
-  top: "conv7"
-}
-layer {
-  name: "norm7"
-  type: "LRN"
-  bottom: "conv7"
-  top: "norm7"
-  lrn_param {
-    local_size: 3
-    alpha: 5e-05
-    beta: 0.75
-    norm_region: WITHIN_CHANNEL
-  }
-}
-layer {
-  name: "conv8"
-  type: "Convolution"
-  bottom: "norm7"
-  top: "conv8"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
-  convolution_param {
-    num_output: 512
-    pad: 1
-    kernel_size: 3
-    stride: 1
-  }
-}
-layer {
-  name: "relu8"
-  type: "ReLU"
-  bottom: "conv8"
-  top: "conv8"
-}
-
-layer {
-  name: "norm8"
-  type: "LRN"
-  bottom: "conv8"
-  top: "norm8"
-  lrn_param {
-    local_size: 3
-    alpha: 5e-05
-    beta: 0.75
-    norm_region: WITHIN_CHANNEL
-  }
-}
-layer {
-  name: "eltwise_data"
   bottom: "roi_pool_spatial_con4_3"
-  bottom: "norm8"
-  top: "eltwise_data"
-  type: "Eltwise"
-  eltwise_param{
-    operation: SUM
-  }
-}
-layer {
-  name: "conv9"
-  type: "Convolution"
-  bottom: "eltwise_data"
-  top: "conv9"
+  top: "conv0_0"
   param {
     lr_mult: 1
   }
@@ -126,61 +41,158 @@ layer {
     lr_mult: 2
   }
   convolution_param {
-    num_output: 512
-    pad: 2
+    num_output: 1
+    pad: 1
+    kernel_size: 3
+    stride: 1
+  }
+}
+layer {
+  name: "concat0"
+  bottom: "conv0_0"
+  bottom: "roi_pool_temporal_raw"
+  top: "concat0"
+  type: "Concat"
+  concat_param {
+    axis: 1
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "concat0"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 20
     kernel_size: 5
     stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
   }
 }
 layer {
-  name: "relu9"
-  type: "ReLU"
-  bottom: "conv9"
-  top: "conv9"
-}
-layer {
-  name: "pool9"
+  name: "pool1"
   type: "Pooling"
-  bottom: "conv9"
-  top: "pool9"
+  bottom: "conv1"
+  top: "pool1"
   pooling_param {
-    pool: AVE
-    kernel_size: 3
+    pool: MAX
+    kernel_size: 2
     stride: 2
   }
 }
 layer {
-  name: "fc9"
-  type: "InnerProduct"
-  bottom: "pool9"
-  top: "fc9"
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
   param {
     lr_mult: 1
-    decay_mult: 250
   }
   param {
     lr_mult: 2
-    decay_mult: 0
   }
-  inner_product_param {
-    num_output: 11
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
   }
 }
 layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "fc9"
-  bottom: "label_reshape"
-  top: "loss"
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1_mod"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1_mod"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1_mod"
+  type: "ReLU"
+  bottom: "ip1_mod"
+  top: "ip1_mod"
+}
+layer {
+  name: "ip2_mod"
+  type: "InnerProduct"
+  bottom: "ip1_mod"
+  top: "ip2_mod"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 11
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
 }
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "fc9"
+  bottom: "ip2_mod"
   bottom: "label_reshape"
   top: "accuracy"
   include {
     phase: TEST
   }
 }
-  
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip2_mod"
+  bottom: "label_reshape"
+  top: "loss"
+}
+layer {
+  name: "Silence"
+  type: "Silence"
+  bottom: "batch_index"
+}
+
