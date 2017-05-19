@@ -147,7 +147,7 @@ class BboxNMSLayerShareFeature(caffe.Layer):
 
 						#Compensate for batch index
 						boxes_nms_xyxy = np.insert(boxes_nms_xyxy,0,batch_idx,axis=1)
-						boxes_nms_xyxy_org = boxes_nms_xyxy[:]
+						boxes_nms_xyxy_org = np.array(boxes_nms_xyxy,copy=True)
 						boxes_nms_xyxy_org[:,2] *= 1.33
 						boxes_nms_xyxy_org[:,4] *= 1.33
 
