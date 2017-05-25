@@ -85,7 +85,7 @@ if __name__ == "__main__":
     _mean_1 = ucfarg_cfg.TRAIN.MEAN_1
     _label_root = ucfarg_cfg.TRAIN.LABEL_ROOT
     _label_extension = ucfarg_cfg.TRAIN.LABEL_EXTENSION
-    _save_path = "/home/ls/dataset"
+    _save_path = "/mnt/hdd2/ls/mscnn/spatial_data"  #/mnt/ssd/ls/dataset/mscnn" #"/home/ls/dataset"
 
     for index in _indexlist:
 
@@ -115,16 +115,17 @@ if __name__ == "__main__":
         net.blobs['clip_id'].data[...] = clip_id
         output = net.forward()
 
-        # print "Boxes: ", index, " ", net.blobs["bbox_nms"].data[0]
+        # print "TEM_Boxes: ", index, " ", net.blobs["bbox_nms"].data[0]
+	# print "SPA_Boxes: ", index, " ", net.blobs["bbox_nms_orgs"].data[0]
 
         # conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1', 'roi_pool_temporal_raw']
-        conv_list = ['roi_pool_temporal_raw']
+        conv_list = ['bbox_nms_orgs'] # 'roi_pool_spatial_conv4_3', 'roi_pool_temporal_raw']
 
         for i in xrange(len(conv_list)):
             # print output[conv_list[i]].shape
             if not os.path.exists(os.path.join(_save_path, conv_list[i], os.path.dirname(index))):
                 os.makedirs(os.path.join(_save_path, conv_list[i], os.path.dirname(index)))
-            np.save(os.path.join(_save_path, conv_list[i], index + ".npy"), output[conv_list[i]])
+            np.save(os.path.join(_save_path, conv_list[i], index + ".npy"), net.blobs[conv_list[i]].data[0]) #output[conv_list[i]])
 
     print "training set already saved"
 
@@ -166,12 +167,15 @@ if __name__ == "__main__":
         output = net.forward()
 
         # conv_list = ['roi_pool_spatial_conv4_3', 'roi_pool_spatial_conv5_3', 'roi_pool_spatial_conv6_1', 'roi_pool_temporal_raw']
-        conv_list = ['roi_pool_temporal_raw']
+        conv_list = ['bbox_nms_orgs'] #'roi_pool_spatial_conv4_3', 'roi_pool_temporal_raw']
+
+        # print "TEM_Boxes: ", index, " ", net.blobs["bbox_nms"].data[0]
+        # print "SPA_Boxes: ", index, " ", net.blobs["bbox_nms_orgs"].data[0]
 
         for i in xrange(len(conv_list)):
             if not os.path.exists(os.path.join(_save_path, conv_list[i], os.path.dirname(index))):
                 os.makedirs(os.path.join(_save_path, conv_list[i], os.path.dirname(index)))
-            np.save(os.path.join(_save_path, conv_list[i], index + ".npy"), output[conv_list[i]]) 
+            np.save(os.path.join(_save_path, conv_list[i], index + ".npy"), net.blobs[conv_list[i]].data[0]) #output[conv_list[i]]) 
 
     print "Testing set already saved"
 

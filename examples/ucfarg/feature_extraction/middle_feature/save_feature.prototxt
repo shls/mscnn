@@ -517,8 +517,8 @@ layer {
   bottom: "bbox_nms_orgs"
   top: "roi_pool_spatial_conv4_3"
   roi_pooling_param {
-    pooled_w: 64
-    pooled_h: 64
+    pooled_w: 128
+    pooled_h: 128
     spatial_scale: 0.125 # 1/1
   }
 }
@@ -553,8 +553,8 @@ layer {
   bottom: "bbox_nms"
   top: "roi_pool_temporal_raw"
   roi_pooling_param {
-    pooled_w: 64
-    pooled_h: 64
+    pooled_w: 128
+    pooled_h: 128
     spatial_scale: 1 # 1/1
   }
 }
