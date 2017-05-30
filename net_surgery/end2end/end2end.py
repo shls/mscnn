@@ -26,6 +26,7 @@ new_mscnn_params_m = ['conv1_1_tem']
 
 # fc_params = {name: (weights, biases)}
 new_fc_mscnn_params_s = {pr: (new_net.params[pr][0].data, new_net.params[pr][1].data) for pr in new_mscnn_params_s}
+new_fc_mscnn_params_m = {pr: (new_net.params[pr][0].data, new_net.params[pr][1].data) for pr in new_mscnn_params_m}
 
 # same part for mscnn part
 for pr, new_pr in zip(mscnn_params_s, new_mscnn_params_s):
@@ -38,9 +39,9 @@ print "All same layers are done"
 for pr, new_pr in zip(mscnn_params_m, new_mscnn_params_m):
 	for n in range (0, fc_mscnn_params_m[pr][0].shape[0]):
 		for c_i in range (0, fc_mscnn_params_m[pr][0].shape[1]):
-			new_fc_alex_params_m[new_pr][0][n][0] += fc_mscnn_params_m[pr][0][n][c_i]
-		new_fc_alex_params_m[new_pr][0][n][0] /= 3
-	new_fc_alex_params_m[new_pr][1][...]=fc_mscnn_params_m[pr][1]
+			new_fc_mscnn_params_m[new_pr][0][n][0] += fc_mscnn_params_m[pr][0][n][c_i]
+		new_fc_mscnn_params_m[new_pr][0][n][0] /= 3
+	new_fc_mscnn_params_m[new_pr][1][...]=fc_mscnn_params_m[pr][1]
 print "The first layer of alexnet is done"
 
 new_net.save('/home/ls/mscnn/net_surgery/end2end/mod_end2end.caffemodel')

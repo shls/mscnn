@@ -340,7 +340,7 @@ layer {
   top: "conv4_3_tm"
   slice_param {
     axis: 0
-    slice_point: 19 # batchsize
+    slice_point: 1 # batchsize
   }
   include {
     phase: TRAIN
@@ -354,7 +354,7 @@ layer {
   top: "conv4_3_tm"
   slice_param {
     axis: 0
-    slice_point: 19 # batchsize
+    slice_point: 1 # batchsize
   }
   include {
     phase: TEST
