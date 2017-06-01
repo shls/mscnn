@@ -10,33 +10,40 @@ class ModDataLayerE2E(caffe.Layer):
 	# """docstring for ModDataLayer"""
 
 
-	def _load_data(self, spatial_im, temporal_im, label, clip_id,  b_index, bbox_num_org, label_reshape, index, count, batch_id, filename):
-		for i in xrange(count):
+	def _load_data(self, spatial_im, temporal_im, label, clip_id, bbox_num_org, label_reshape, index, count, batch_id, filename):
 
-			mix = np.asarray(np.load(os.path.join(self._data_root, index + self._data_extension)))
-			spatial = np.asarray(mix_im[:, :, 0:-1])
-			spatial = cv2.resize(spatial, (self._target_w, self._target_h)).astype(np.float32)
-			spatial -= self._mean_3
-			spatial = spatial.transpose((2,0,1))
+		mix = np.asarray(np.load(os.path.join(self._data_root, filename + self._data_extension)))
+		spatial = np.asarray(mix[:, :, 0:-1])
+		spatial = cv2.resize(spatial, (self._target_w, self._target_h)).astype(np.float32)
+		spatial -= self._mean_3
+		spatial = spatial.transpose((2,0,1))
 
-			temporal = np.asarray(mix_im[:, :, -1])
-			temporal = cv2.resize(temporal, (self._target_w, self._target_h)).astype(np.float32)
-			temporal = self._mean_1
-			temporal = np.expand_dims(temporal_im, axis=0)
+		temporal = np.asarray(mix[:, :, -1])
+		temporal = cv2.resize(temporal, (self._target_w, self._target_h)).astype(np.float32)
+		temporal = self._mean_1
+		temporal = np.expand_dims(temporal, axis=0)
 
-			label_file = os.path.join(self._label_root, index + self._label_extension)
-			assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
+		label_file = os.path.join(self._label_root, filename + self._label_extension)
+		assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
 
-			with open(label_file) as f:
-				label_data = f.readline()
+		with open(label_file) as f:
+			label_data = f.readline()
 
-			spatial_im[batch_id] = spatial
-			temporal_fm[batch_id] = temporal
-			label[batch_id] = int(label_data.split()[0])
-			clip_id[batch_id] = int(label_data.split()[1])
-			bbox_num_org[index+i] = np.asarray(np.load(os.path.join(self._bbox_num_org_root, filename + self._data_extension)))[i][:]
-			bbox_num_org[index+i][0] = batch_id
-			label_reshape[index+i] = np.asarray(np.load(os.path.join(self._label_prefeature_root, filename + self._data_extension)))[i][:]
+		spatial_im[batch_id] = spatial
+		temporal_im[batch_id] = temporal
+		label[batch_id] = int(label_data.split()[0])
+		clip_id[batch_id] = int(label_data.split()[1])
+
+		if count == 1:
+			bbox_num_org[index] = np.asarray(np.load(os.path.join(self._bbox_num_org_root, filename + self._data_extension)))
+			bbox_num_org[index][0] = batch_id
+			label_reshape[index] = np.asarray(np.load(os.path.join(self._label_prefeature_root, filename + self._data_extension)))[0][:]
+		else:
+                	for i in xrange(count):
+				print "error: ", filename
+				bbox_num_org[index+i] = np.asarray(np.load(os.path.join(self._bbox_num_org_root, filename + self._data_extension)))[i][:]
+				bbox_num_org[index+i][0] = batch_id
+				label_reshape[index+i] = np.asarray(np.load(os.path.join(self._label_prefeature_root, filename + self._data_extension)))[i][:]
 
 	def _get_count(self, results, index, id):
 		results[id] = len(np.asarray(np.load(os.path.join(self._label_prefeature_root, index + self._data_extension))))
@@ -88,7 +95,7 @@ class ModDataLayerE2E(caffe.Layer):
 		blob_temporal_im = np.zeros((self._imgs_per_batch, self._temporal_channels, self._target_h,self._target_w), dtype=np.float32)
 		blob_lables = np.zeros((self._imgs_per_batch), dtype=np.float32)
 		blob_clip_id = np.zeros((self._imgs_per_batch), dtype=np.float32)
-		blob_bbox_num_org = np.zeros((total_batch,6), dtype=np.float32)
+		blob_bbox_num_org = np.zeros((total_batch,5), dtype=np.float32)
 		blob_label_reshape = np.zeros((total_batch), dtype=np.float32)
 
 		thread_list = []
@@ -125,7 +132,7 @@ class ModDataLayerE2E(caffe.Layer):
 		if (self.phase == caffe.TRAIN):
 			# Setup ModDataLayer
 			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TRAIN.LIST_FILE)]
-			self._imgs_per_batch = ucfarg_cfg.TRAIN.E2E_ALTER_IMS_PER_BATCH
+			self._imgs_per_batch = ucfarg_cfg.TRAIN.END2END_IMS_PER_BATCH
 			self._data_extension = ucfarg_cfg.TRAIN.DATA_EXTENSION
 			self._label_prefeature_root = ucfarg_cfg.TRAIN.LABEL_PREFEATURE_ROOT
 			self._spatial_channels = ucfarg_cfg.TRAIN.SPATIAL_CHANNELS
@@ -142,7 +149,7 @@ class ModDataLayerE2E(caffe.Layer):
 		else:
 			# Setup ModDataLayer
 			self._indexlist = [line.rstrip('\n') for line in open(ucfarg_cfg.TEST.LIST_FILE)]
-			self._imgs_per_batch = ucfarg_cfg.TEST.E2E_ALTER_IMS_PER_BATCH
+			self._imgs_per_batch = ucfarg_cfg.TEST.END2END_IMS_PER_BATCH
 			self._data_extension = ucfarg_cfg.TEST.DATA_EXTENSION
 			self._label_prefeature_root = ucfarg_cfg.TEST.LABEL_PREFEATURE_ROOT
 			self._spatial_channels = ucfarg_cfg.TEST.SPATIAL_CHANNELS
@@ -163,7 +170,7 @@ class ModDataLayerE2E(caffe.Layer):
 		idx += 1
 
 		top[idx].reshape(self._imgs_per_batch, self._temporal_channels,
-			self._org_h, self._org_w)
+			self._target_h, self._target_w)
 		self._name_to_top_map['temporal_data'] = idx
 		idx += 1
 		
