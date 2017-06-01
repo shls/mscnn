@@ -1,24 +1,24 @@
 name: "mod_MSCNN"
 input: "spatial_data"
 input_shape {
-  input_dim: 1
-  input_dim: 3
-  input_dim: 720
-  input_dim: 960
+  dim: 1
+  dim: 3
+  dim: 720
+  dim: 960
 }
 input: "temporal_data"
 input_shape {
-  input_dim: 1
-  input_dim: 1
-  input_dim: 720
-  input_dim: 960
+  dim: 1
+  dim: 1
+  dim: 720
+  dim: 960
 }
 input: "bbox_num_org"
 input_shape {
-  input_dim: 1
-  input_dim: 1
-  input_dim: 1
-  input_dim: 5
+  dim: 1
+  dim: 1
+  dim: 1
+  dim: 5
 }
 layer {
   bottom: "spatial_data"
@@ -1002,17 +1002,8 @@ layer {
   }
 }
 layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "ip2_mod"
-  bottom: "label_reshape"
-  top: "loss"
-}
-layer {
   name: "Silence"
   type: "Silence"
   bottom: "cls_pred"
   bottom: "bbox_pred"
-  bottom: 'label'
-  bottom: 'clip_id'
 }

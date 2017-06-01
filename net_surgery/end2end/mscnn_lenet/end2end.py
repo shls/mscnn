@@ -19,19 +19,19 @@ fc_mscnn_params_m = {pr: (mscnn_net.params[pr][0].data, mscnn_net.params[pr][1].
 
 # Lenet
 lenet_net = caffe.Net('/home/ls/mscnn/net_surgery/lenet/origin.prototxt','/home/ls/mscnn/net_surgery/lenet/lenet_iter_10000.caffemodel', caffe.TRAIN)
-lenet_params_s = ['conv2','ip1', 'ip2']
+lenet_params_s = ['conv2'] #,'ip1', 'ip2']
 lenet_params_m = ['conv1']
 
 # MSCNN fc_params = {name: (weights, biases)}
-fc_lenet_params_s = {pr: (lenet_net.params[pr][0].data, lenet_net.params[pr][1].data) for pr in lenet_params_m}
-fc_lenet_params_m = {pr: (lenet_net.params[pr][0].data, lenet_net.params[pr][1].data) for pr in lenet_params_s}
+fc_lenet_params_s = {pr: (lenet_net.params[pr][0].data, lenet_net.params[pr][1].data) for pr in lenet_params_s}
+fc_lenet_params_m = {pr: (lenet_net.params[pr][0].data, lenet_net.params[pr][1].data) for pr in lenet_params_m}
 
 # Load New net
-new_net = caffe.Net('/home/ls/mscnn/net_surgery/end2end/mscnn_lenet/train_mod_st2.prototxt', caffe.TRAIN)
+new_net = caffe.Net('/home/ls/mscnn/net_surgery/end2end/mscnn_lenet/mscnn_lenet.prototxt', caffe.TRAIN)
 new_params_s_mscnn = ['conv1_1','conv1_2','conv2_1','conv2_2','conv3_1','conv3_2','conv3_3','conv4_1','conv4_2','conv4_3','conv5_1','conv5_2','conv5_3', 'conv6_1','loss1-conv1','LFCN_1_3x5', 'LFCN_1_5x7', 'LFCN_2_3x5', 'LFCN_2_5x7', 'LFCN_3_3x5', 'LFCN_3_5x7' ,'LFCN_4_3x5', 'fc6','cls_pred', 'bbox_pred'] 
 new_params_m_mscnn = ['conv1_1_tem']
 
-new_params_s_lenet = ['conv9', 'ip1_mod', 'ip2_mod']
+new_params_s_lenet = ['conv9'] #, 'ip1_mod', 'ip2_mod']
 new_params_m_lenet = ['conv8']
 
 # fc_params = {name: (weights, biases)}
